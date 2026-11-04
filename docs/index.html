@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SANAM — Next-Generation Enterprise IT Asset Management & Mobile QR Auditing</title>
+  <meta name="description" content="Immutable asset identity, zero-install mobile QR auditing, and enterprise custody lifecycle management.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #07090E;
+      --bg-card: #0D121D;
+      --bg-card-hover: #121927;
+      --gold-primary: #C4A477;
+      --gold-light: #FCEFD2;
+      --gold-metallic: linear-gradient(135deg, #DFBA73 0%, #FCEFD2 50%, #C4A477 100%);
+      --emerald-accent: #10B981;
+      --text-muted: #8E9BAE;
+      --border-gold: rgba(196, 164, 119, 0.28);
+      --border-glow: 0 0 24px rgba(196, 164, 119, 0.18);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg-dark);
+      color: #E2E8F0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(196, 164, 119, 0.18) 0%, transparent 60%),
+        radial-gradient(circle at 10% 40%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 90% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header Nav */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 9, 14, 0.82);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-gold);
+    }
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 76px;
+    }
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo-img { height: 38px; width: auto; }
+    .brand-title {
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      background: var(--gold-metallic);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold-light); }
+    .btn-github {
+      background: linear-gradient(135deg, #C4A477 0%, #A57D3E 100%);
+      color: #07090E !important;
+      font-weight: 700 !important;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13.5px !important;
+      transition: all 0.25s ease !important;
+      box-shadow: 0 4px 14px rgba(196, 164, 119, 0.3);
+    }
+    .btn-github:hover {
+      background: linear-gradient(135deg, #DFBA73 0%, #C4A477 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(196, 164, 119, 0.45);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 100px 0 60px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(196, 164, 119, 0.1);
+      border: 1px solid var(--border-gold);
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-light);
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+    }
+    .hero-badge-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--emerald-accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--emerald-accent);
+    }
+    .hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      line-height: 1.15;
+      margin-bottom: 22px;
+      background: var(--gold-metallic);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      max-width: 720px;
+      margin: 0 auto 36px;
+      font-size: 18px;
+      color: #CBD5E1;
+      font-weight: 400;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 50px;
+    }
+    .btn-primary-hero {
+      background: linear-gradient(135deg, #C4A477 0%, #9F7638 100%);
+      color: #07090E;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 15px;
+      box-shadow: 0 6px 24px rgba(196, 164, 119, 0.35);
+      transition: all 0.25s;
+    }
+    .btn-primary-hero:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(196, 164, 119, 0.5);
+    }
+    .btn-secondary-hero {
+      background: rgba(13, 18, 29, 0.85);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-light);
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 15px;
+      transition: all 0.25s;
+    }
+    .btn-secondary-hero:hover {
+      background: rgba(196, 164, 119, 0.12);
+      border-color: var(--gold-light);
+    }
+
+    /* Hero Banner Image */
+    .hero-banner-container {
+      margin-top: 20px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-gold);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+    .hero-banner-img {
+      width: 100%;
+      display: block;
+    }
+
+    /* Bento Grid */
+    .section-header {
+      text-align: center;
+      margin: 100px 0 50px;
+    }
+    .section-tag {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--gold-light);
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+    .bento-card-img {
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: block;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
+    .bento-card-img:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(196, 164, 119, 0.2);
+    }
+
+    /* Screenshots Grid */
+    .screens-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+    .screen-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transition: transform 0.3s ease;
+    }
+    .screen-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--gold-light);
+    }
+    .screen-card img {
+      width: 100%;
+      display: block;
+    }
+    .screen-info {
+      padding: 16px 20px;
+    }
+    .screen-info h4 {
+      font-size: 16px;
+      color: var(--gold-light);
+      margin-bottom: 6px;
+    }
+    .screen-info p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Terminal Section */
+    .terminal-container {
+      margin: 40px auto 80px;
+      max-width: 950px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .terminal-container img {
+      width: 100%;
+      display: block;
+    }
+
+    /* Quickstart Box */
+    .quickstart-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 100px;
+    }
+    .code-snippet {
+      background: #040609;
+      border: 1px solid rgba(196, 164, 119, 0.2);
+      border-radius: 10px;
+      padding: 18px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: #FCEFD2;
+      margin: 14px 0 24px;
+      overflow-x: auto;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-gold);
+      padding: 50px 0;
+      text-align: center;
+      background: #04060A;
+      color: var(--text-muted);
+      font-size: 13.5px;
+    }
+    footer a { color: var(--gold-primary); text-decoration: none; }
+
+    @media (max-width: 860px) {
+      .hero-title { font-size: 38px; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .screens-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="container nav-inner">
+      <a href="#" class="logo-link">
+        <span class="brand-title">SANAM</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#screens">Screenshots</a>
+        <a href="#terminal">Live Scanner</a>
+        <a href="#quickstart">Quickstart</a>
+        <a href="https://github.com/it1buildhub-hue/SANAM" class="btn-github" target="_blank">★ View on GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero container">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      ENTERPRISE ASSET SYSTEM 2026
+    </div>
+    <h1 class="hero-title">
+      IMMUTABLE ASSET IDENTITY.<br/>ZERO-APP MOBILE AUDITS.
+    </h1>
+    <p class="hero-subtitle">
+      Next-generation IT Asset Management and ITIL Service Desk platform. Eliminates duplicate serials, forgotten custody changes, and clunky barcode hardware.
+    </p>
+    <div class="hero-actions">
+      <a href="https://github.com/it1buildhub-hue/SANAM" class="btn-primary-hero" target="_blank">Clone from GitHub &rarr;</a>
+      <a href="#quickstart" class="btn-secondary-hero">Quickstart (60s)</a>
+    </div>
+
+    <!-- Hero Vector Banner -->
+    <div class="hero-banner-container">
+      <img src="images/sanam-banner.svg" alt="SANAM Banner" class="hero-banner-img" />
+    </div>
+  </section>
+
+  <!-- Bento Grid Section -->
+  <section class="container" id="features">
+    <div class="section-header">
+      <div class="section-tag">Core Capabilities</div>
+      <h2 class="section-title">The Four Pillars of SANAM</h2>
+    </div>
+
+    <div class="bento-grid">
+      <img src="images/card-mobile-audit.svg" alt="Mobile QR Audit" class="bento-card-img" />
+      <img src="images/card-immutable-id.svg" alt="Immutable Asset Identity" class="bento-card-img" />
+      <img src="images/card-telecom-custody.svg" alt="Corporate Telecom and Custody" class="bento-card-img" />
+      <img src="images/card-instant-deploy.svg" alt="Automated Provisioning" class="bento-card-img" />
+    </div>
+  </section>
+
+  <!-- Live Terminal Section -->
+  <section class="container" id="terminal">
+    <div class="section-header">
+      <div class="section-tag">Low-Latency Verification</div>
+      <h2 class="section-title">Live Auditor Terminal Engine</h2>
+    </div>
+
+    <div class="terminal-container">
+      <img src="images/sanam-terminal.svg" alt="Terminal Simulation" />
+    </div>
+  </section>
+
+  <!-- Visual Tour Section -->
+  <section class="container" id="screens">
+    <div class="section-header">
+      <div class="section-tag">User Experience</div>
+      <h2 class="section-title">Field &amp; Executive Walkthrough</h2>
+    </div>
+
+    <div class="screens-grid">
+      <div class="screen-card">
+        <img src="images/phone-scan.png" alt="Phone Scan" />
+        <div class="screen-info">
+          <h4>📱 Mobile QR Scanner</h4>
+          <p>Instant camera decode with real-time discrepancy logging.</p>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <img src="images/phone-register.png" alt="Phone Register" />
+        <div class="screen-info">
+          <h4>📦 Dockside Registration</h4>
+          <p>Draft new arrivals into inventory directly from the delivery bay.</p>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <img src="images/custody.png" alt="Custody Handover" />
+        <div class="screen-info">
+          <h4>📋 Custody &amp; Handover</h4>
+          <p>Clear audit trail with employee exit clearance sign-off.</p>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <img src="images/dashboard.png" alt="Dashboard" />
+        <div class="screen-info">
+          <h4>🖥️ Executive Dashboard</h4>
+          <p>Real-time lifecycle analytics, audit progress, and alerts.</p>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <img src="images/campaigns.png" alt="Campaigns" />
+        <div class="screen-info">
+          <h4>🗂️ Audit Campaigns</h4>
+          <p>Multi-location verification cycles with instant pass/fail metrics.</p>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <img src="images/labels.png" alt="Asset Labels" />
+        <div class="screen-info">
+          <h4>🏷️ Print-Ready QR Labels</h4>
+          <p>High-contrast permanent tags with sequential SNM identifiers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quickstart Section -->
+  <section class="container" id="quickstart">
+    <div class="quickstart-box">
+      <div class="section-tag">Deployment</div>
+      <h2 class="section-title" style="text-align: left; margin-bottom: 20px;">Deploy in 60 Seconds</h2>
+      <p style="color: #CBD5E1; margin-bottom: 20px;">
+        Requires Windows PC with <b>PHP 8.3</b> and <b>MariaDB 11.x</b> running on port 3306.
+      </p>
+
+      <p style="color: var(--gold-light); font-weight: 600;">1. Clone &amp; Install Database:</p>
+      <div class="code-snippet">
+git clone https://github.com/it1buildhub-hue/SANAM.git<br/>
+cd SANAM<br/>
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install.ps1
+      </div>
+
+      <p style="color: var(--gold-light); font-weight: 600;">2. Start the Local Server:</p>
+      <div class="code-snippet">
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\start.ps1
+      </div>
+
+      <p style="color: #94A3B8; font-size: 13px;">
+        Open <b>http://127.0.0.1:8081</b> in your browser. (Or use <code>-Demo</code> for sample data on port 8083).
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p style="font-family: 'Cinzel', serif; font-size: 18px; color: var(--gold-light); margin-bottom: 8px;">
+        SANAM IT ASSETS
+      </p>
+      <p>
+        Crafted for Uncompromised Operational Excellence • Distributed under the <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GPL-3.0 License</a>.
+      </p>
+      <p style="margin-top: 10px;">
+        <a href="https://github.com/it1buildhub-hue/SANAM">GitHub Repository: it1buildhub-hue/SANAM</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
