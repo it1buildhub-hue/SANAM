@@ -1,11 +1,11 @@
 <div align="center">
 
-<!-- Hero Banner (Custom Luxury Vector SVG) -->
+<!-- Animated Waving Hero Header -->
 <a href="https://github.com/it1buildhub-hue/SANAM">
-  <img src="docs/images/sanam-banner.svg" alt="SANAM Luxury Banner" width="100%" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0a0e17,50:121826,100:c4a477&height=280&section=header&text=SANAM&fontSize=80&fontColor=fcefd2&fontFamily=Cinzel&desc=ENTERPRISE%20IT%20ASSET%20MANAGEMENT%20%7C%20MOBILE%20QR%20AUDITING&descSize=15&descAlignY=68&descAlign=50&stroke=c4a477&strokeWidth=1.5&animation=fadeIn" width="100%" alt="SANAM Header" />
 </a>
 
-<br/><br/>
+<br/>
 
 <!-- Animated Luxury Typing Subtitle -->
 <a href="https://github.com/it1buildhub-hue/SANAM">
@@ -14,7 +14,7 @@
 
 <br/>
 
-<!-- Curated Metallic Gold & Obsidian Badges -->
+<!-- Metallic Gold & Obsidian Tech Badges -->
 <p align="center">
   <img src="https://img.shields.io/badge/PHP-8.3%2B-C4A477?style=for-the-badge&logo=php&logoColor=0B0E14&labelColor=0B0E14" alt="PHP 8.3" />
   <img src="https://img.shields.io/badge/MariaDB-10.6%20%7C%2011.x-C4A477?style=for-the-badge&logo=mariadb&logoColor=0B0E14&labelColor=0B0E14" alt="MariaDB" />
@@ -33,8 +33,6 @@
   <a href="#-workflow-architecture"><b>✦ ARCHITECTURE</b></a> &nbsp;•&nbsp;
   <a href="#-instant-deployment"><b>✦ QUICKSTART</b></a>
 </p>
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0x0a0e17,0x161b22,0xc4a477&height=50&section=header" width="100%" />
 
 </div>
 
@@ -58,9 +56,9 @@ SANAM eradicates these points of failure through a **luxury-tier design system**
 
 <div align="center">
 
-| <a href="#-visual-walkthrough"><img src="docs/images/card-mobile-audit.svg" width="100%" /></a> | <a href="#-visual-walkthrough"><img src="docs/images/card-immutable-id.svg" width="100%" /></a> |
+| <a href="#-visual-walkthrough"><img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/card-mobile-audit.svg" width="100%" alt="Mobile QR Audit" /></a> | <a href="#-visual-walkthrough"><img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/card-immutable-id.svg" width="100%" alt="Immutable ID" /></a> |
 |:---:|:---:|
-| <a href="#-visual-walkthrough"><img src="docs/images/card-telecom-custody.svg" width="100%" /></a> | <a href="#-instant-deployment"><img src="docs/images/card-instant-deploy.svg" width="100%" /></a> |
+| <a href="#-visual-walkthrough"><img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/card-telecom-custody.svg" width="100%" alt="Telecom & Custody" /></a> | <a href="#-instant-deployment"><img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/card-instant-deploy.svg" width="100%" alt="Instant Deploy" /></a> |
 
 </div>
 
@@ -71,7 +69,7 @@ SANAM eradicates these points of failure through a **luxury-tier design system**
 Experience how field auditors interact with SANAM's low-latency verification engine:
 
 <div align="center">
-  <img src="docs/images/sanam-terminal.svg" alt="Live Auditor Terminal Simulation" width="100%" />
+  <img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/sanam-terminal.svg" alt="Live Auditor Terminal Simulation" width="100%" />
 </div>
 
 <br/>
@@ -91,7 +89,7 @@ Experience how field auditors interact with SANAM's low-latency verification eng
 ### 🖥️ Executive Command Center
 Unified oversight over operational readiness, verification campaign progress, and hardware depreciation:
 <div align="center">
-  <img src="docs/images/dashboard.png" alt="SANAM Executive Dashboard" width="95%" />
+  <img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/dashboard.png" alt="SANAM Executive Dashboard" width="95%" />
 </div>
 
 <br/>
@@ -100,7 +98,7 @@ Unified oversight over operational readiness, verification campaign progress, an
 
 | 1. Instant QR Identification | 2. Dockside Hardware Registration | 3. Custody &amp; Handover Sign-Off |
 |:---:|:---:|:---:|
-| <img src="docs/images/phone-scan.png" width="280" /> | <img src="docs/images/phone-register.png" width="280" /> | <img src="docs/images/custody.png" width="280" /> |
+| <img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/phone-scan.png" width="280" alt="Mobile Scan" /> | <img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/phone-register.png" width="280" alt="Mobile Register" /> | <img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/custody.png" width="280" alt="Custody Sign-Off" /> |
 | *Real-time QR barcode decode & status lookup* | *Direct auditor registration for new arrivals* | *Asset assignment, transfer & return clearance* |
 
 <br/>
@@ -109,7 +107,7 @@ Unified oversight over operational readiness, verification campaign progress, an
 
 | Structured Verification Campaigns | Print-Ready QR Asset Labels |
 |:---:|:---:|
-| <img src="docs/images/campaigns.png" width="460" /> | <img src="docs/images/labels.png" width="460" /> |
+| <img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/campaigns.png" width="460" alt="Campaigns" /> | <img src="https://raw.githubusercontent.com/it1buildhub-hue/SANAM/main/docs/images/labels.png" width="460" alt="Labels" /> |
 | *Multi-area tracking with real-time pass/fail indicators* | *High-contrast QR tags with permanent SNM identifiers* |
 
 ---
