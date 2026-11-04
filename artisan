@@ -1,0 +1,194 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * SANAM CLI & Server Runner (Artisan-compatible)
+ *
+ * Usage:
+ *   php artisan serve
+ *   php artisan serve --port=8081
+ *   php artisan serve --demo
+ *   php artisan users
+ */
+
+define('SANAM_ROOT', __DIR__);
+
+// Parse command line arguments
+$args = array_slice($argv, 1);
+$command = $args[0] ?? 'serve';
+
+// Color formatting for terminal
+function color($text, $color = 'green') {
+    $colors = [
+        'gold'    => "\033[38;2;196;164;119m",
+        'yellow'  => "\033[1;33m",
+        'green'   => "\033[1;32m",
+        'blue'    => "\033[1;34m",
+        'cyan'    => "\033[1;36m",
+        'red'     => "\033[1;31m",
+        'gray'    => "\033[0;90m",
+        'bold'    => "\033[1m",
+        'reset'   => "\033[0m",
+    ];
+    return ($colors[$color] ?? '') . $text . $colors['reset'];
+}
+
+function showBanner() {
+    echo "\n";
+    echo color("   ___   ___   _  _   ___   __  __\n", 'gold');
+    echo color("  / __| /   \\ | \\| | /   \\ |  \\/  |\n", 'gold');
+    echo color("  \\__ \\| - - || .` || - - || |\\/| |\n", 'gold');
+    echo color("  |___/|_|_|_||_|\\_||_|_|_||_|  |_|\n", 'gold');
+    echo color("  SANAM — Enterprise IT Asset Management System\n\n", 'yellow');
+}
+
+// Check port open
+function isPortOpen($host, $port) {
+    $connection = @fsockopen($host, $port, $errno, $errstr, 1);
+    if (is_resource($connection)) {
+        fclose($connection);
+        return true;
+    }
+    return false;
+}
+
+// Start MariaDB if stopped
+function ensureMariaDB() {
+    if (isPortOpen('127.0.0.1', 3306)) {
+        return true;
+    }
+
+    echo color("  [i] MariaDB is not running. Attempting to start service...\n", 'gray');
+    
+    // Search for mariadbd.exe on Windows
+    $mariadbd = null;
+    $possible = glob('C:/Program Files/MariaDB*/bin/mariadbd.exe');
+    if (!empty($possible)) {
+        $mariadbd = end($possible);
+    }
+
+    if ($mariadbd && file_exists($mariadbd)) {
+        if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+            pclose(popen("start \"\" /B \"" . str_replace('/', '\\', $mariadbd) . "\" --console", "r"));
+        } else {
+            pclose(popen("$mariadbd &", "r"));
+        }
+        
+        for ($i = 0; $i < 20; $i++) {
+            sleep(1);
+            if (isPortOpen('127.0.0.1', 3306)) {
+                echo color("  [✓] MariaDB service started successfully.\n", 'green');
+                return true;
+            }
+        }
+    }
+
+    echo color("  [!] Warning: MariaDB port 3306 is not open. Please ensure your database server is running.\n", 'yellow');
+    return false;
+}
+
+// Command dispatcher
+switch ($command) {
+    case 'serve':
+        showBanner();
+
+        // Parse flags
+        $port = 8081;
+        $host = '127.0.0.1';
+        $useDemo = false;
+
+        foreach ($args as $arg) {
+            if (preg_match('/^--port=(\d+)$/', $arg, $m)) {
+                $port = (int)$m[1];
+            } elseif (preg_match('/^--host=(.+)$/', $arg, $m)) {
+                $host = $m[1];
+            } elseif ($arg === '--demo') {
+                $useDemo = true;
+            }
+        }
+
+        // Determine data directory
+        $dataDir = SANAM_ROOT . '/data/main';
+        if ($useDemo || !file_exists($dataDir . '/config/config_db.php')) {
+            if (file_exists(SANAM_ROOT . '/data/demo/config/config_db.php')) {
+                $dataDir = SANAM_ROOT . '/data/demo';
+            }
+        }
+
+        if (!file_exists($dataDir . '/config/config_db.php')) {
+            echo color("  [!] Error: No installed instance found.\n", 'red');
+            echo color("      Run: powershell -File scripts\\install.ps1 -Demo\n\n", 'gray');
+            exit(1);
+        }
+
+        // Check and start MariaDB
+        ensureMariaDB();
+
+        // Check if port is already running
+        if (isPortOpen($host, $port)) {
+            echo color("  [✓] Server is ALREADY running on http://{$host}:{$port}\n", 'green');
+            echo color("      Open in browser: http://{$host}:{$port}\n\n", 'cyan');
+            exit(0);
+        }
+
+        // Configure environment variables
+        putenv("SANAM_CONFIG_DIR=" . realpath($dataDir . '/config'));
+        putenv("SANAM_VAR_DIR=" . realpath($dataDir . '/files'));
+        
+        $ssl = dirname(PHP_BINARY) . '/extras/ssl/openssl.cnf';
+        if (file_exists($ssl)) {
+            putenv("OPENSSL_CONF=" . $ssl);
+        }
+
+        $publicDir = realpath(SANAM_ROOT . '/core/public');
+        $router = $publicDir . '/index.php';
+
+        $dbName = str_ends_with($dataDir, 'demo') ? 'sanam_demo' : 'sanam';
+
+        echo color("  INFO  ", 'gold') . "Server running on " . color("http://{$host}:{$port}", 'cyan') . "\n";
+        echo color("  INFO  ", 'gold') . "Database: " . color($dbName, 'yellow') . " (127.0.0.1:3306)\n";
+        echo color("  INFO  ", 'gold') . "Data directory: " . color(basename($dataDir), 'gray') . "\n\n";
+        echo color("  Press Ctrl+C to stop the server\n\n", 'gray');
+
+        // Start PHP server
+        $cmd = sprintf(
+            '"%s" -d max_execution_time=300 -S %s:%d -t "%s" "%s"',
+            PHP_BINARY,
+            $host,
+            $port,
+            $publicDir,
+            $router
+        );
+
+        passthru($cmd);
+        break;
+
+    case 'users':
+    case 'credentials':
+    case 'logins':
+        showBanner();
+        $loginsFile = SANAM_ROOT . '/data/demo/LOGINS.txt';
+        if (!file_exists($loginsFile)) {
+            $loginsFile = SANAM_ROOT . '/data/main/LOGINS.txt';
+        }
+
+        if (file_exists($loginsFile)) {
+            echo color("  CREDENTIALS (All Companies & Roles):\n\n", 'yellow');
+            echo file_get_contents($loginsFile);
+            echo "\n";
+        } else {
+            echo color("  [!] LOGINS.txt not found in data directories.\n\n", 'red');
+        }
+        break;
+
+    case '--help':
+    case 'help':
+    default:
+        showBanner();
+        echo "  Available Commands:\n";
+        echo "    " . color("serve", 'green') . "         Start the SANAM application server (" . color("php artisan serve", 'yellow') . ")\n";
+        echo "                   Options: --port=8081  --host=127.0.0.1  --demo\n";
+        echo "    " . color("users", 'green') . "         Display login accounts and credentials (" . color("php artisan users", 'yellow') . ")\n";
+        echo "    " . color("help", 'green') . "          Display this help message\n\n";
+        break;
+}
