@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 380" width="100%" height="100%">
+  <defs>
+    <linearGradient id="termBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E121B"/>
+      <stop offset="100%" stop-color="#06080D"/>
+    </linearGradient>
+    <linearGradient id="termBorder" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C4A477" stop-opacity="0.6"/>
+      <stop offset="50%" stop-color="#FCEFD2" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#8F6E3E" stop-opacity="0.4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Terminal Window Background -->
+  <rect x="2" y="2" width="896" height="376" rx="14" fill="url(#termBg)" stroke="url(#termBorder)" stroke-width="1.8"/>
+
+  <!-- Window Header Bar -->
+  <rect x="2" y="2" width="896" height="42" rx="14" fill="#141924"/>
+  <rect x="2" y="32" width="896" height="12" fill="#141924"/>
+  <line x1="2" y1="44" x2="898" y2="44" stroke="#C4A477" stroke-opacity="0.25" stroke-width="1"/>
+
+  <!-- Window Control Buttons -->
+  <circle cx="24" cy="23" r="6" fill="#FF5F56"/>
+  <circle cx="44" cy="23" r="6" fill="#FFBD2E"/>
+  <circle cx="64" cy="23" r="6" fill="#27C93F"/>
+
+  <!-- Window Title -->
+  <text x="450" y="27" font-family="'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="12" font-weight="600" fill="#E5C78A" text-anchor="middle" letter-spacing="1.5">
+    sanam-auditor-cli • physical-audit-session #2026-Q4
+  </text>
+
+  <!-- Live Pulse Status -->
+  <circle cx="862" cy="23" r="4.5" fill="#10B981"/>
+  <text x="848" y="27" font-family="'Fira Code', monospace" font-size="10" font-weight="600" fill="#10B981" text-anchor="end">ONLINE</text>
+
+  <!-- Terminal Content Lines -->
+  <g font-family="'Fira Code', 'JetBrains Mono', Consolas, monospace" font-size="13.5" xml:space="preserve">
+    <!-- Command Prompt -->
+    <text x="30" y="82" fill="#E5C78A" font-weight="700">sanam-admin@enterprise<tspan fill="#8B949E">:</tspan><tspan fill="#C4A477">~</tspan><tspan fill="#8B949E">$</tspan> <tspan fill="#FFFFFF">sanam audit scan --tag SNM-000412 --campaign "Q4-YARD-AUDIT"</tspan></text>
+
+    <!-- Scan Outputs -->
+    <text x="30" y="118" fill="#10B981">✔ <tspan fill="#8B949E">[0.012s]</tspan> <tspan fill="#F3E5AB">QR Code Decoded:</tspan> <tspan fill="#C4A477">https://sanam.local/scan?id=SNM-000412</tspan></text>
+    <text x="30" y="148" fill="#10B981">✔ <tspan fill="#8B949E">[0.019s]</tspan> <tspan fill="#F3E5AB">Asset Record:</tspan> <tspan fill="#FFFFFF">Dell Latitude 5420 • i7-1185G7 • 32GB RAM • 512GB NVMe</tspan></text>
+    <text x="30" y="178" fill="#10B981">✔ <tspan fill="#8B949E">[0.024s]</tspan> <tspan fill="#F3E5AB">Custody Holder:</tspan> <tspan fill="#E5C78A">Omar Mohammed</tspan> <tspan fill="#8B949E">(Yard Operations Division)</tspan></text>
+    <text x="30" y="208" fill="#10B981">✔ <tspan fill="#8B949E">[0.031s]</tspan> <tspan fill="#F3E5AB">Serial Validation:</tspan> <tspan fill="#FFFFFF">4HG92B3</tspan> <tspan fill="#10B981">[COLLISION CHECK: 0 DUPLICATES]</tspan></text>
+    <text x="30" y="238" fill="#10B981">✔ <tspan fill="#8B949E">[0.038s]</tspan> <tspan fill="#F3E5AB">Location Match:</tspan> <tspan fill="#FFFFFF">Sharjah Office &amp; Yard • Sub-location: Counter 02</tspan></text>
+    <text x="30" y="268" fill="#10B981">✔ <tspan fill="#8B949E">[0.045s]</tspan> <tspan fill="#F3E5AB">Audit Log Reconciled:</tspan> <tspan fill="#C4A477">MariaDB Commit #892819 [CAMPAIGN_VERIFIED]</tspan></text>
+
+    <!-- Success Highlight Banner -->
+    <rect x="30" y="296" width="840" height="42" rx="8" fill="#0C281E" stroke="#10B981" stroke-width="1.2"/>
+    <text x="50" y="322" fill="#10B981" font-weight="700">★ RESULT: ASSET COMPLIANT • ZERO DISCREPANCIES • SIGN-OFF REGISTERED</text>
+    <text x="850" y="322" fill="#E5C78A" font-weight="600" text-anchor="end">STATUS: 100% PASS</text>
+  </g>
+</svg>

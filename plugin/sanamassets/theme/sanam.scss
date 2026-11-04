@@ -1,24 +1,26 @@
 /* theme-name: SANAM */
 /*
- * SANAM Group palette, taken from the company logo.
- * SANAM 11 only loads custom themes as SCSS (src/Sanam/UI/Theme.php).
- * Copy to <SANAM_VAR_DIR>/_themes/sanam.scss and make it the default:
- *   php bin/console config:set palette sanam
+ * SANAM Luxury Obsidian & Royal Gold Palette
+ * Official Enterprise Design System for SANAM 11
  *
- * Palette slots, as used by the core palettes:
- *   color-1: header and sidebar background
- *   color-2: text on color-1
- *   color-3: accent (links, active items)
- *   color-4: highlight (buttons)
- *
- * Brand colours: black #000000 (logo background), white #FFFFFF, gold #C4A477 (logo mark and text).
+ * Brand colours:
+ *   - Deep Obsidian: #080A10 / #0E121B
+ *   - Pure Accent: #FFFFFF
+ *   - Royal Metallic Gold: #C4A477 / #D4AF37
+ *   - Champagne Accent: #F3E5AB / #E5C78A
+ *   - Verified Status: #10B981
  */
 
 :root[data-sanam-theme="sanam"] {
-    --sanam-palette-color-1: #000000;
-    --sanam-palette-color-2: #ffffff;
-    --sanam-palette-color-3: #c4a477;
-    --sanam-palette-color-4: #c4a477;
+    --sanam-palette-color-1: #0A0D15; // Obsidian header and sidebar background
+    --sanam-palette-color-2: #FFFFFF; // Text on header and sidebar
+    --sanam-palette-color-3: #C4A477; // Accent links, active indicators, and focus rings
+    --sanam-palette-color-4: #D4AF37; // Highlight buttons and primary action badges
+
+    // Extended Luxury Theme Accents
+    --sanam-gold-glow: 0 0 16px rgba(196, 164, 119, 0.35);
+    --sanam-border-gold: 1px solid rgba(196, 164, 119, 0.3);
+    --sanam-surface-card: #0E131F;
 
     // Logos. Served from the plugin's public folder; the images have a transparent background.
     --sanam-logo-light: url("/plugins/sanamassets/public/sanam-logo.png");
@@ -28,4 +30,36 @@
     --sanam-logo-light-reduced: url("/plugins/sanamassets/public/sanam-mark.png");
     --sanam-logo-dark-reduced: url("/plugins/sanamassets/public/sanam-mark.png");
     --sanam-logo-reduced: url("/plugins/sanamassets/public/sanam-mark.png");
+}
+
+/* Luxury UI Enhancements for SANAM Elements */
+body[data-theme="sanam"] {
+    .btn-primary {
+        background: linear-gradient(135deg, #C4A477 0%, #A57D3E 100%) !important;
+        border-color: #C4A477 !important;
+        color: #0A0D15 !important;
+        font-weight: 600 !important;
+        box-shadow: 0 2px 8px rgba(196, 164, 119, 0.25);
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+            background: linear-gradient(135deg, #DFBA73 0%, #C4A477 100%) !important;
+            box-shadow: 0 4px 14px rgba(196, 164, 119, 0.45);
+            transform: translateY(-1px);
+        }
+    }
+
+    .badge-sanam-verified {
+        background-color: #0E2A1E !important;
+        border: 1px solid #10B981 !important;
+        color: #10B981 !important;
+        font-weight: 600 !important;
+    }
+
+    .badge-sanam-gold {
+        background: rgba(196, 164, 119, 0.12) !important;
+        border: 1px solid #C4A477 !important;
+        color: #E5C78A !important;
+        font-weight: 600 !important;
+    }
 }
