@@ -1,0 +1,18 @@
+{
+    "require": {
+        "php": ">=8.2"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.2.99"
+        },
+        "sort-packages": true,
+        "autoloader-suffix": "PluginDatainjection"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sanam\\Tools\\": "../../tools/src/"
+        }
+    }
+}

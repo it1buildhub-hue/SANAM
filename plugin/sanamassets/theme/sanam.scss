@@ -1,0 +1,31 @@
+/* theme-name: SANAM */
+/*
+ * SANAM Group palette, taken from the company logo.
+ * SANAM 11 only loads custom themes as SCSS (src/Sanam/UI/Theme.php).
+ * Copy to <SANAM_VAR_DIR>/_themes/sanam.scss and make it the default:
+ *   php bin/console config:set palette sanam
+ *
+ * Palette slots, as used by the core palettes:
+ *   color-1: header and sidebar background
+ *   color-2: text on color-1
+ *   color-3: accent (links, active items)
+ *   color-4: highlight (buttons)
+ *
+ * Brand colours: black #000000 (logo background), white #FFFFFF, gold #C4A477 (logo mark and text).
+ */
+
+:root[data-sanam-theme="sanam"] {
+    --sanam-palette-color-1: #000000;
+    --sanam-palette-color-2: #ffffff;
+    --sanam-palette-color-3: #c4a477;
+    --sanam-palette-color-4: #c4a477;
+
+    // Logos. Served from the plugin's public folder; the images have a transparent background.
+    --sanam-logo-light: url("/plugins/sanamassets/public/sanam-logo.png");
+    --sanam-logo-dark: url("/plugins/sanamassets/public/sanam-logo.png");
+    --sanam-logo-light-login: url("/plugins/sanamassets/public/sanam-logo.png");
+    --sanam-logo-dark-login: url("/plugins/sanamassets/public/sanam-logo.png");
+    --sanam-logo-light-reduced: url("/plugins/sanamassets/public/sanam-mark.png");
+    --sanam-logo-dark-reduced: url("/plugins/sanamassets/public/sanam-mark.png");
+    --sanam-logo-reduced: url("/plugins/sanamassets/public/sanam-mark.png");
+}

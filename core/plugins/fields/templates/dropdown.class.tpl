@@ -1,0 +1,77 @@
+<?php
+
+class %%CLASSNAME%% extends CommonTreeDropdown {
+   public $field_name      = %%FIELDNAME%%;
+   public $can_be_translated = true;
+
+   static function getTypeName($nb=0) {
+      $item = [
+         "itemtype" => PluginFieldsField::getType(),
+         "id"       => %%FIELDID%%,
+         "label"    => %%LABEL%%
+      ];
+      $label = PluginFieldsLabelTranslation::getLabelFor($item);
+      return $label;
+   }
+
+   static function install() {
+      global $DB;
+
+      $default_charset = DBConnection::getDefaultCharset();
+      $default_collation = DBConnection::getDefaultCollation();
+      $default_key_sign = DBConnection::getDefaultPrimaryKeySignOption();
+
+      $obj = new self();
+      $table = $obj->getTable();
+
+      $plugin_fields_fieldname_dropdowns_id = 'plugin_fields_' . preg_replace('/[^a-zA-Z0-9_]/', '', %%FIELDNAME%%) . 'dropdowns_id';
+
+      if (!$DB->tableExists($table)) {
+         $query = "CREATE TABLE IF NOT EXISTS `$table` (
+                  `id`                                      INT            {$default_key_sign} NOT NULL auto_increment,
+                  `name`                                    VARCHAR(255)   DEFAULT NULL,
+                  `completename`                            TEXT           DEFAULT NULL,
+                  `comment`                                 TEXT           DEFAULT NULL,
+                  `{$plugin_fields_fieldname_dropdowns_id}` INT            {$default_key_sign} DEFAULT NULL,
+                  `level`                                   INT            DEFAULT NULL,
+                  `ancestors_cache`                         TEXT           DEFAULT NULL,
+                  `sons_cache`                              TEXT           DEFAULT NULL,
+                  `entities_id`                             INT            {$default_key_sign} NOT NULL DEFAULT '0',
+                  `is_recursive`                            TINYINT        NOT NULL DEFAULT '0',
+                  PRIMARY KEY                               (`id`),
+                  KEY                                       `entities_id`  (`entities_id`),
+                  KEY                                       `is_recursive` (`is_recursive`),
+                  KEY                                       `{$plugin_fields_fieldname_dropdowns_id}`
+                                                            (`{$plugin_fields_fieldname_dropdowns_id}`)
+               ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+         $DB->doQuery($query);
+      }
+   }
+
+   static function uninstall() {
+      global $DB;
+
+      $obj = new self();
+      return $DB->doQuery("DROP TABLE IF EXISTS `".$obj->getTable()."`");
+   }
+
+   /**
+    * Get the search page URL for the current classe
+    *
+    * @param $full path or relative one (true by default)
+   **/
+   static function getTabsURL($full=true) {
+      $url = Toolbox::getItemTypeTabsURL(get_called_class(), $full);
+      return $url;
+   }
+
+   /**
+    * Get the search page URL for the current class
+    *
+    * @param $full path or relative one (true by default)
+   **/
+   static function getSearchURL($full=true) {
+      $url = Toolbox::getItemTypeSearchURL(get_called_class(), $full);
+      return $url;
+   }
+}

@@ -1,0 +1,442 @@
+<?php
+
+/**
+ * ---------------------------------------------------------------------
+ *
+ * SANAM
+ *
+ *
+ * @copyright 2015-2026 Teclib' and contributors.
+ * @copyright 2003-2014 by the INDEPNET Development Team.
+ * @licence   https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of SANAM.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * ---------------------------------------------------------------------
+ */
+
+use Sanam\DBAL\QueryFunction;
+
+class PurgeLogs extends CommonDBTM
+{
+    protected static $notable = true;
+
+    public static function getTypeName($nb = 0)
+    {
+        return __('Logs purge');
+    }
+
+    /**
+     * @param CronTask $task
+     *
+     * @return int
+     */
+    public static function cronPurgeLogs($task)
+    {
+        $cron_status = 0;
+
+        $logs_before = self::getLogsCount();
+        if ($logs_before) {
+            self::purgeSoftware();
+            self::purgeInfocom();
+            self::purgeUserInfos();
+            self::purgeDevices();
+            self::purgeRelations();
+            self::purgeItems();
+            self::purgeRefusedLogs();
+            self::purgeOthers();
+            self::purgePlugins();
+            self::purgeAll();
+            $logs_after = self::getLogsCount();
+            Log::history(0, self::class, [0, $logs_before, $logs_after], '', Log::HISTORY_LOG_SIMPLE_MESSAGE);
+            $task->addVolume($logs_before - $logs_after);
+            $cron_status = 1;
+        } else {
+            $task->addVolume(0);
+        }
+        return $cron_status;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return array
+     */
+    public static function cronInfo($name)
+    {
+        return ['description' => __("Purge history")];
+    }
+
+    /**
+     * Purge software logs
+     *
+     * @return void
+     */
+    public static function purgeSoftware()
+    {
+        global $CFG_SANAM, $DB;
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_item_software_install']);
+        if ($month) {
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype'        => $CFG_SANAM['software_types'],
+                    'linked_action'   => [
+                        Log::HISTORY_INSTALL_SOFTWARE,
+                        Log::HISTORY_UNINSTALL_SOFTWARE,
+                        Log::HISTORY_ADD_SUBITEM,
+                        Log::HISTORY_UPDATE_SUBITEM,
+                        Log::HISTORY_DELETE_SUBITEM,
+                    ],
+                ] + $month
+            );
+        }
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_software_item_install']);
+        if ($month) {
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype'        => SoftwareVersion::class,
+                    'linked_action'   => [
+                        Log::HISTORY_INSTALL_SOFTWARE,
+                        Log::HISTORY_UNINSTALL_SOFTWARE,
+                    ],
+                ] + $month
+            );
+        }
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_software_version_install']);
+        if ($month) {
+            //Delete software version association
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'OR' => [
+                        [
+                            'itemtype'        => Computer::class,
+                            'itemtype_link'   => 'Software',
+                        ],
+                        [
+                            'itemtype'        => Software::class,
+                            'itemtype_link'   => 'SoftwareVersion',
+                        ],
+                        [
+                            'itemtype'        => Software::class,
+                            'itemtype_link'   => 'Item_SoftwareVersion',
+                        ],
+                        [
+                            'itemtype'        => SoftwareVersion::class,
+                            'itemtype_link'   => 'Item_SoftwareVersion',
+                        ],
+                    ],
+                    'linked_action'   => [
+                        Log::HISTORY_ADD_SUBITEM,
+                        Log::HISTORY_UPDATE_SUBITEM,
+                        Log::HISTORY_DELETE_SUBITEM,
+                    ],
+                ] + $month
+            );
+        }
+    }
+
+    /**
+     * Purge infocom logs
+     *
+     * @return void
+     */
+    public static function purgeInfocom()
+    {
+        global $CFG_SANAM, $DB;
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_infocom_creation']);
+        if ($month) {
+            //Delete add infocom
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype'        => Software::class,
+                    'itemtype_link'   => 'Infocom',
+                    'linked_action'   => Log::HISTORY_ADD_SUBITEM,
+                ] + $month
+            );
+
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype'        => Infocom::class,
+                    'linked_action'   => Log::HISTORY_CREATE_ITEM,
+                ] + $month
+            );
+        }
+    }
+
+    /**
+     * Purge users logs
+     *
+     * @return void
+     */
+    public static function purgeUserinfos()
+    {
+        global $CFG_SANAM, $DB;
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_profile_user']);
+        if ($month) {
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype'        => User::class,
+                    'itemtype_link'   => 'Profile_User',
+                    'linked_action'   => [
+                        Log::HISTORY_ADD_SUBITEM,
+                        Log::HISTORY_UPDATE_SUBITEM,
+                        Log::HISTORY_DELETE_SUBITEM,
+                    ],
+                ] + $month
+            );
+        }
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_group_user']);
+        if ($month) {
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype'        => User::class,
+                    'itemtype_link'   => 'Group_User',
+                    'linked_action'   => [
+                        Log::HISTORY_ADD_SUBITEM,
+                        Log::HISTORY_UPDATE_SUBITEM,
+                        Log::HISTORY_DELETE_SUBITEM,
+                    ],
+                ] + $month
+            );
+        }
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_userdeletedfromldap']);
+        if ($month) {
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype'        => User::class,
+                    'linked_action'   => Log::HISTORY_LOG_SIMPLE_MESSAGE,
+                ] + $month
+            );
+        }
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_user_auth_changes']);
+        if ($month) {
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype'        => User::class,
+                    'linked_action'   => Log::HISTORY_ADD_RELATION,
+                ] + $month
+            );
+        }
+    }
+
+
+    /**
+     * Purge devices logs
+     *
+     * @return void
+     */
+    public static function purgeDevices()
+    {
+        $actions = [
+            Log::HISTORY_ADD_DEVICE          => "adddevice",
+            Log::HISTORY_UPDATE_DEVICE       => "updatedevice",
+            Log::HISTORY_DELETE_DEVICE       => "deletedevice",
+            Log::HISTORY_CONNECT_DEVICE      => "connectdevice",
+            Log::HISTORY_DISCONNECT_DEVICE   => "disconnectdevice",
+        ];
+        self::purgeByField('linked_action', $actions);
+    }
+
+    /**
+     * Purge relations logs
+     *
+     * @return void
+     */
+    public static function purgeRelations()
+    {
+        $actions = [
+            Log::HISTORY_ADD_RELATION     => "addrelation",
+            Log::HISTORY_UPDATE_RELATION  => "addrelation",
+            Log::HISTORY_DEL_RELATION     => "deleterelation",
+        ];
+        self::purgeByField('linked_action', $actions);
+    }
+
+    /**
+     * Purge items logs
+     *
+     * @return void
+     */
+    public static function purgeItems()
+    {
+        $actions = [
+            Log::HISTORY_CREATE_ITEM      => "createitem",
+            Log::HISTORY_ADD_SUBITEM      => "createitem",
+            Log::HISTORY_DELETE_ITEM      => "deleteitem",
+            Log::HISTORY_DELETE_SUBITEM   => "deleteitem",
+            Log::HISTORY_UPDATE_SUBITEM   => "updateitem",
+            Log::HISTORY_RESTORE_ITEM     => "restoreitem",
+        ];
+        self::purgeByField('linked_action', $actions);
+    }
+
+    /**
+     * Purge refused equipments logs
+     *
+     * @return void
+     */
+    public static function purgeRefusedLogs()
+    {
+        global $CFG_SANAM, $DB;
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_refusedequipment']);
+        if ($month) {
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype' => RefusedEquipment::class,
+                ] + $month
+            );
+        }
+    }
+
+
+    /**
+     * Purge othr logs
+     *
+     * @return void
+     */
+    public static function purgeOthers()
+    {
+        $actions = [
+            16 => 'comments',
+            19 => 'datemod',
+        ];
+        self::purgeByField('id_search_option', $actions);
+    }
+
+
+    /**
+     * Purge plugins logs
+     *
+     * @return void
+     */
+    public static function purgePlugins()
+    {
+        global $CFG_SANAM, $DB;
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_plugins']);
+        if ($month) {
+            $DB->delete(
+                'sanam_logs',
+                [
+                    'itemtype' => ['LIKE', 'Plugin%'],
+                ] + $month
+            );
+        }
+    }
+
+
+    /**
+     * Purge all logs
+     *
+     * @return void
+     */
+    public static function purgeAll()
+    {
+        global $CFG_SANAM, $DB;
+
+        $month = self::getDateModRestriction($CFG_SANAM['purge_all']);
+        if ($month) {
+            $DB->delete(
+                'sanam_logs',
+                $month
+            );
+        }
+    }
+
+    /**
+     * Purge logs matching given field values, grouping values sharing the same retention
+     * so that a single query is executed per retention value.
+     *
+     * @param string             $field  Field to filter on (e.g. `linked_action`)
+     * @param array<int, string> $values Field values, associated to their purge configuration suffix
+     *
+     * @return void
+     */
+    private static function purgeByField(string $field, array $values): void
+    {
+        global $CFG_SANAM, $DB;
+
+        $values_by_retention = [];
+        foreach ($values as $value => $config_suffix) {
+            $values_by_retention[(int) $CFG_SANAM['purge_' . $config_suffix]][] = $value;
+        }
+
+        foreach ($values_by_retention as $retention => $field_values) {
+            $month = self::getDateModRestriction($retention);
+            if ($month) {
+                $DB->delete(
+                    'sanam_logs',
+                    [
+                        $field => $field_values,
+                    ] + $month
+                );
+            }
+        }
+    }
+
+    /**
+     * Get modification date restriction clause
+     *
+     * @param int $month Number of months
+     *
+     * @return array|false
+     */
+    public static function getDateModRestriction($month)
+    {
+        if ($month > 0) {
+            return ['date_mod' => ['<=', QueryFunction::dateSub(QueryFunction::now(), $month, 'MONTH')]];
+        } elseif ($month == Config::DELETE_ALL) {
+            return [1 => 1];
+        } elseif ($month == Config::KEEP_ALL) {
+            return false;
+        }
+
+        return false; // Unknown value, keep all by default
+    }
+
+    /**
+     * Count logs
+     *
+     * @return int
+     */
+    public static function getLogsCount()
+    {
+        return countElementsInTable('sanam_logs');
+    }
+}

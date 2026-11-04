@@ -1,0 +1,113 @@
+<?php
+
+/**
+ * ---------------------------------------------------------------------
+ *
+ * SANAM
+ *
+ *
+ * @copyright 2015-2026 Teclib' and contributors.
+ * @copyright 2003-2014 by the INDEPNET Development Team.
+ * @licence   https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of SANAM.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * ---------------------------------------------------------------------
+ */
+
+namespace Sanam\Form\Tag;
+
+use Sanam\Form\Answer;
+use Sanam\Form\AnswersSet;
+use Sanam\Form\Form;
+use Sanam\Form\FormTranslation;
+use Sanam\Form\Question;
+use Override;
+
+final class QuestionTagProvider implements TagProviderInterface, TagWithIdValueInterface
+{
+    #[Override]
+    public function getTagColor(): string
+    {
+        return "orange";
+    }
+
+    #[Override]
+    public function getTags(Form $form): array
+    {
+        $tags = [];
+        foreach ($form->getQuestions() as $question) {
+            $tags[] = $this->getTagForQuestion($question);
+        }
+
+        return $tags;
+    }
+
+    #[Override]
+    public function getTagContentForValue(
+        string $value,
+        AnswersSet $answers_set
+    ): string {
+        $id = (int) $value;
+
+        $question = Question::getById($id);
+        if (!$question) {
+            return '';
+        }
+
+        // Questions without answer were not displayed to the requester (hidden
+        // by a visibility condition), so they must not be displayed either.
+        $answers = array_filter(
+            $answers_set->getAnswers(),
+            fn(Answer $answer) => $answer->getQuestionId() === $id
+        );
+        if ($answers === []) {
+            return '';
+        }
+
+        return FormTranslation::translate($question, Question::TRANSLATION_KEY_NAME) ?? $question->fields['name'];
+    }
+
+    #[Override]
+    public function getItemtype(): string
+    {
+        return Question::class;
+    }
+
+    #[Override]
+    public function getTagFromRawValue(string $value): ?Tag
+    {
+        $question = Question::getById((int) $value);
+        if (!$question) {
+            return null;
+        }
+
+        return $this->getTagForQuestion($question);
+    }
+
+    public function getTagForQuestion(Question $question): Tag
+    {
+        return new Tag(
+            label: sprintf(__('Question: %s'), $question->fields['name']),
+            value: $question->getId(),
+            provider: $this,
+        );
+    }
+}

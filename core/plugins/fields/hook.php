@@ -1,0 +1,361 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * Fields plugin for SANAM
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of Fields.
+ *
+ * Fields is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Fields is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Fields. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @copyright Copyright (C) 2013-2023 by Fields plugin team.
+ * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      #
+ * -------------------------------------------------------------------------
+ */
+
+/**
+ * Plugin install process
+ *
+ * @return boolean
+ */
+function plugin_fields_install()
+{
+    // Regenerating tables/files can consume lot of memory/time
+    $memory_limit       = (int) Toolbox::getMemoryLimit();
+    $max_execution_time = ini_get('max_execution_time');
+    if ($memory_limit > 0 && $memory_limit < (512 * 1024 * 1024)) {
+        ini_set('memory_limit', '512M');
+    }
+
+    if ($max_execution_time > 0 && $max_execution_time < 300) {
+        ini_set('max_execution_time', '300');
+    }
+
+    $plugin_fields = new Plugin();
+    $plugin_fields->getFromDBbyDir('fields');
+
+    $version = $plugin_fields->fields['version'];
+
+
+    $migration = new Migration($version);
+    if (isCommandLine()) {
+        echo __('MySQL tables installation', 'fields') . "\n";
+    } else {
+        echo '<center>';
+        echo "<table class='tab_cadre_fixe'>";
+        echo '<tr><th>' . __('MySQL tables installation', 'fields') . '<th></tr>';
+
+        echo "<tr class='tab_bg_1'>";
+        echo "<td align='center'>";
+    }
+
+    $classesToInstall = [
+        PluginFieldsContainer::class,
+        PluginFieldsContainerDisplayCondition::class,
+        PluginFieldsDropdown::class,
+        PluginFieldsField::class,
+        PluginFieldsLabelTranslation::class,
+        PluginFieldsProfile::class,
+        PluginFieldsQuestionType::class,
+        PluginFieldsStatusOverride::class,
+    ];
+
+
+    // First, install base data
+    foreach ($classesToInstall as $class) {
+        if (method_exists($class, 'installBaseData')) {
+            $class::installBaseData($migration, $version);
+        }
+    }
+
+    $migration->executeMigration();
+
+    // Then process specific user classes/tables
+    foreach ($classesToInstall as $class) {
+        if (method_exists($class, 'installUserData')) {
+            $class::installUserData($migration, $version);
+        }
+    }
+
+    $migration->executeMigration();
+
+    if (!isCommandLine()) {
+        echo '</td>';
+        echo '</tr>';
+        echo '</table></center>';
+    }
+
+    return true;
+}
+
+/**
+ * Plugin uninstall process
+ *
+ * @return boolean
+ */
+function plugin_fields_uninstall()
+{
+    if (!class_exists('PluginFieldsProfile')) {
+        Session::addMessageAfterRedirect(
+            __("The plugin can't be uninstalled when the plugin is disabled", 'fields'),
+            true,
+            WARNING,
+            true,
+        );
+
+        return false;
+    }
+
+    $_SESSION['uninstall_fields'] = true;
+
+    echo '<center>';
+    echo "<table class='tab_cadre_fixe'>";
+    echo '<tr><th>' . __('MySQL tables uninstallation', 'fields') . '<th></tr>';
+
+    echo "<tr class='tab_bg_1'>";
+    echo "<td align='center'>";
+
+    $classesToUninstall = [
+        'PluginFieldsDropdown',
+        'PluginFieldsContainer',
+        'PluginFieldsLabelTranslation',
+        'PluginFieldsField',
+        'PluginFieldsProfile',
+        'PluginFieldsStatusOverride',
+        'PluginFieldsContainerDisplayCondition',
+    ];
+
+    foreach ($classesToUninstall as $class) {
+        if ($plug = isPluginItemType($class)) {
+            $dir  = PLUGINFIELDS_DIR . '/inc/';
+            $item = strtolower((string) $plug['class']);
+
+            if (file_exists(sprintf('%s%s.class.php', $dir, $item))) {
+                include_once(sprintf('%s%s.class.php', $dir, $item));
+                if (!call_user_func([$class, 'uninstall'])) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    echo '</td>';
+    echo '</tr>';
+    echo '</table></center>';
+
+    unset($_SESSION['uninstall_fields']);
+
+    // clean display preferences
+    $pref = new DisplayPreference();
+    $pref->deleteByCriteria([
+        'itemtype' => ['LIKE' , 'PluginFields%'],
+    ]);
+
+    // clean configuration values
+    $config = new Config();
+    $config->deleteByCriteria([
+        'context' => 'plugin:fields',
+    ]);
+
+    return true;
+}
+
+function plugin_fields_getAddSearchOptions($itemtype)
+{
+    if (
+        isset($_SESSION['sanamactiveentities'])
+        && is_array($_SESSION['sanamactiveentities'])
+        && $_SESSION['sanamactiveentities'] !== []
+    ) {
+        $itemtypes = PluginFieldsContainer::getEntries('all');
+        if (in_array($itemtype, $itemtypes)) {
+            return PluginFieldsContainer::getAddSearchOptions($itemtype);
+        }
+    }
+
+    return null;
+}
+
+// Define Dropdown tables to be manage in SANAM :
+function plugin_fields_getDropdown()
+{
+    $dropdowns = [];
+
+    $field_obj = new PluginFieldsField();
+    $fields    = $field_obj->find(['type' => 'dropdown']);
+    foreach ($fields as $field) {
+        $field['itemtype']                                                = PluginFieldsField::getType();
+        $label                                                            = PluginFieldsLabelTranslation::getLabelFor($field);
+        $dropdowns['PluginFields' . ucfirst((string) $field['name']) . 'Dropdown'] = $label;
+    }
+
+    asort($dropdowns);
+
+    return $dropdowns;
+}
+
+
+/**** MASSIVE ACTIONS ****/
+
+// Display specific massive actions for plugin fields
+function plugin_fields_MassiveActionsFieldsDisplay($options = [])
+{
+    $itemtypes = PluginFieldsContainer::getEntries('all');
+
+    if (in_array($options['itemtype'], $itemtypes)) {
+        if (isset($options['options']['is_multiple']) && $options['options']['is_multiple']) {
+            Dropdown::showFromArray(
+                'multiple_dropdown_action',
+                [
+                    'assign' => __('Assign'),
+                    'append' => __('Add'),
+                ],
+            );
+        }
+
+        return PluginFieldsField::showSingle($options['itemtype'], $options['options'], true);
+    }
+
+    // Need to return false on non display item
+    return false;
+}
+
+function plugin_fields_giveItem($itemtype, $ID, $data, $num)
+{
+    $searchopt = Search::getOptions($itemtype);
+    $table     = $searchopt[$ID]['table'];
+
+    //fix sanam default Search::giveItem who for empty date display "--"
+    if (
+        str_contains((string) $table, 'sanam_plugin_fields')
+        && isset($searchopt[$ID]['datatype'])
+        && str_contains($searchopt[$ID]['datatype'], 'date')
+        && empty($data['raw']['ITEM_' . $num])
+    ) {
+        return ' ';
+    }
+
+    return false;
+}
+
+/**
+ * Load Fields classes in datainjection.
+ * Called by Setup.php:44 if Datainjection is installed and active
+ */
+function plugin_datainjection_populate_fields()
+{
+    /** @var array $INJECTABLE_TYPES */
+    global $INJECTABLE_TYPES;
+
+    $container = new PluginFieldsContainer();
+    $found     = $container->find(['is_active' => 1]);
+    foreach ($found as $values) {
+        $types = PluginFieldsToolbox::decodeJSONItemtypes($values['itemtypes']);
+
+        foreach ($types as $type) {
+            $classname                    = PluginFieldsContainer::getClassname($type, $values['name'], 'Injection');
+            $INJECTABLE_TYPES[$classname] = 'fields';
+        }
+    }
+}
+
+function plugin_fields_addWhere($link, $nott, $itemtype, $ID, $val, $searchtype)
+{
+    /** @var DBmysql $DB */
+    global $DB;
+
+    $searchopt         = Search::getOptions($itemtype);
+    $table             = $searchopt[$ID]['table'];
+    $field             = $searchopt[$ID]['field'];
+    $pfields_fields_id = $searchopt[$ID]['pfields_fields_id'] ?? 0;
+
+    // Identify the field by its id (unique), not by its name: several containers
+    // can define a field with the same name, which would make a name-based lookup ambiguous.
+    $field_field = new PluginFieldsField();
+    if (!$field_field->getFromDB($pfields_fields_id)) {
+        return null;
+    }
+
+    if ($field_field->fields['type'] === 'number') {
+        // if 'number' field with searchtype 'equals' or 'notequals'
+        // update WHERE clause with `$table_$field.$field` because without `$table_$field.id` is used
+        if ($searchtype == 'equals' || $searchtype == 'notequals') {
+            $operator = ($searchtype == 'equals') ? '=' : '!=';
+            if ($nott) {
+                $link .= ' NOT ';
+            }
+
+            return $link . ' CAST(' . $DB->quoteName($table . '_' . $field) . '.' . $DB->quoteName($field) . ' AS DECIMAL(10,7))' . $operator . ' ' . $DB->quoteValue($val);
+        } else {
+            // if 'number' field with <= or >= or < or > search
+            // update WHERE clause with the correct operator
+            $val = html_entity_decode((string) $val);
+            if (preg_match('/(<=|>=|>|<)/', $val, $matches)) {
+                $operator = $matches[1];
+                $val = trim(str_replace($operator, '', $val));
+                return $link . $DB->quoteName($table . '_' . $field) . '.' . $DB->quoteName($field) . $operator . ' ' . $DB->quoteValue($val);
+            }
+        }
+    }
+
+    if (!$field_field->fields['multiple']) {
+        return null;
+    }
+
+    // 'Dropdown-XXXX' case: the searchopt field name is the plugin field name itself
+    // update WHERE clause with LIKE statement
+    if (preg_match('/^dropdown-.+$/i', (string) $field_field->fields['type'])) {
+        $tablefield = $table . '_' . $field;
+        return match ($searchtype) {
+            'equals' => PluginFieldsDropdown::multipleDropdownAddWhere($link, $tablefield, $field, $val, $nott ? 'notequals' : 'equals', $field_field),
+            'notequals' => PluginFieldsDropdown::multipleDropdownAddWhere($link, $tablefield, $field, $val, $nott ? 'equals' : 'notequals', $field_field),
+            default => null,
+        };
+    }
+
+    // 'dropdown' case: the searchopt field name is mangled ("plugin_fields_<name>dropdowns_id"),
+    // recover the real field name to build the joined table alias
+    // update WHERE clause with LIKE statement
+    $cleanfield = str_replace('plugin_fields_', '', $field);
+    $cleanfield = str_replace('dropdowns_id', '', $cleanfield);
+
+    $tablefield = $table . '_' . $cleanfield;
+    return match ($searchtype) {
+        'equals' => PluginFieldsDropdown::multipleDropdownAddWhere($link, $tablefield, $field, $val, $nott ? 'notequals' : 'equals', $field_field),
+        'notequals' => PluginFieldsDropdown::multipleDropdownAddWhere($link, $tablefield, $field, $val, $nott ? 'equals' : 'notequals', $field_field),
+        default => null,
+    };
+}
+
+function plugin_item_transfer_fields(array $options): void
+{
+    $itemtype = $options['type'] ?? null;
+    $container_ids = PluginFieldsContainer::findAllContainers($itemtype);
+
+    $container = new PluginFieldsContainer();
+    foreach ($container_ids as $id) {
+        $container->getFromDB($id);
+        $data = [
+            'plugin_fields_containers_id' => $id,
+            'itemtype' => $itemtype,
+            'items_id' => $options['newID'],
+            'entities_id' => $options['entities_id'],
+        ];
+        $container->updateFieldsValues($data, $itemtype, true);
+    }
+}

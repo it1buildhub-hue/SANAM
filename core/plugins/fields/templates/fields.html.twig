@@ -1,0 +1,251 @@
+{#
+ # -------------------------------------------------------------------------
+ # Fields plugin for SANAM
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of Fields.
+ #
+ # Fields is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 2 of the License, or
+ # (at your option) any later version.
+ #
+ # Fields is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with Fields. If not, see <http://www.gnu.org/licenses/>.
+ # -------------------------------------------------------------------------
+ # @copyright Copyright (C) 2013-2023 by Fields plugin team.
+ # @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
+ # @link      #
+ # -------------------------------------------------------------------------
+ #}
+
+{% import 'components/form/fields_macros.html.twig' as macros %}
+
+{% set in_itilobject   = item is instanceof('CommonITILObject') and container.fields['type'] == 'dom' %}
+{% set in_projecttask  = item is instanceof('ProjectTask') and container.fields['type'] == 'dom' %}
+{% set in_form_builder = item is instanceof('Sanam\\Form\\Form') %}
+{% set already_wrapped = in_itilobject or in_form_builder %}
+{% set dropdown_item   = item is instanceof('CommonDropdown') and container.fields['type'] == 'dom' %}
+
+{% set textarea_display_options = {
+    'in_itilobject': {
+        'field_class': 'col-12',
+        'label_class': 'col-2 col-xxl-5',
+        'input_class': 'col-10 col-xxl-7',
+        'is_horizontal': true,
+        'align_label_right': true,
+    },
+    'in_projecttask': {
+        'field_class': 'col-12',
+        'label_class': 'col-2',
+        'input_class': 'col-10',
+        'is_horizontal': true,
+        'align_label_right': true,
+    },
+    'in_form_builder': {
+        'field_class': 'col-12',
+        'label_class': 'form-label',
+        'input_class': 'w-100',
+        'is_horizontal': false,
+        'align_label_right': false,
+    },
+    'default': {
+        'field_class': 'col-12 col-sm-6',
+        'label_class': 'col-xxl-5',
+        'input_class': 'col-xxl-7',
+        'is_horizontal': true,
+        'align_label_right': true,
+    },
+} %}
+
+{% set display_context = in_itilobject ? 'in_itilobject' : (in_projecttask ? 'in_projecttask' : (in_form_builder ? 'in_form_builder' : 'default')) %}
+{% set current_textarea_options = textarea_display_options[display_context] %}
+
+{# Rich text fields use the full row width #}
+{% set current_richtext_options = display_context == 'default' ? current_textarea_options|merge({
+        'field_class': 'col-12',
+        'input_class': 'col-xxl-12',
+        'label_class': 'col-xxl-10',
+        'align_label_right': false,
+    }) : current_textarea_options %}
+
+{% if not already_wrapped and not dropdown_item%}
+
+{% set class = item.isNewItem() or item is instanceof('User') ? 'col-xxl-12' : 'col-xxl-9' %}
+    <div class="col-12  {{ class }} flex-column">
+        <div class="d-flex flex-row flex-wrap flex-xl-nowrap">
+            <div class="row flex-row align-items-start flex-grow-1">
+                <div class="row flex-row">
+                    {% if item.isNewItem() and item is instanceof('User') %}
+                        <div>
+                    {% endif %}
+{% endif %}
+
+{% for field in fields %}
+
+    {% set type     = field['type'] %}
+    {% set name     = field['name'] %}
+    {% set label    = field['label'] %}
+    {% set value    = item.input[name]|default(field['value']) %}
+    {% set readonly = field['is_readonly'] %}
+    {% set rand = random() %}
+    {# On an item form, a single dropdown without value must still render its empty option #}
+    {% set dropdown_value = field['multiple'] or massiveaction or in_form_builder ? value : value|default(0) %}
+
+    {% set field_options = field_options|merge({
+        'readonly': readonly or not canedit,
+        'required': field['mandatory'],
+        'full_width': field_options.full_width ?? already_wrapped,
+    }) %}
+
+    {% set input_name = field_options.input_name ?? name %}
+
+    {% if type == 'header' %}
+        {{ macros.largeTitle(label) }}
+
+    {% elseif type == 'text' %}
+        {{ macros.textField(input_name, value, label, field_options) }}
+
+    {% elseif type == 'number' %}
+        {{ macros.numberField(input_name, value, label, field_options|merge({step: 'any', min: ''})) }}
+
+    {% elseif type == 'url' %}
+            {% set ext_link %}
+            {% if value|length and value matches '/^(https?|mailto):/i' %}
+                <a target="_blank" href="{{ value }}">
+                    <i class="ti ti-external-link"></i>
+                    {{ __('show', 'fields') }}
+                </a>
+            {% endif %}
+            {% endset %}
+            {{ macros.textField(input_name, value, label, field_options|merge({
+                'type': 'url',
+                'add_field_html': ext_link
+            })) }}
+
+    {% elseif type == 'textarea' %}
+        {{ macros.textareaField(input_name, value, label, field_options|merge(current_textarea_options)) }}
+
+    {% elseif type == 'richtext' %}
+        {{ macros.textareaField(input_name, value, label, field_options|merge(current_richtext_options)|merge({
+            'enable_richtext': true,
+        })) }}
+
+    {% elseif type == 'yesno' %}
+        {{ macros.dropdownYesNo(input_name, value, label, field_options) }}
+
+    {% elseif type == 'date' %}
+        {{ macros.dateField(input_name, value, label, field_options) }}
+
+    {% elseif type == 'datetime' %}
+        {{ macros.datetimeField(input_name, value, label, field_options) }}
+
+    {% elseif type == 'dropdown' %}
+        {% set dropdown_options = {'entity': item.getEntityID()} %}
+        {% if field['multiple'] %}
+            {% set dropdown_options = dropdown_options|merge({'multiple': true}) %}
+        {% endif %}
+        {% if item.isRecursive() %}
+            {% set dropdown_options = dropdown_options|merge({'entity_sons': true}) %}
+        {% endif %}
+        {% if "dropdowns_id" in name %}
+            {% set dropdown_itemtype = call("getItemtypeForForeignKeyField", [name]) %}
+        {% else %}
+            {% set dropdown_itemtype = call("PluginFieldsDropdown::getClassname", [name]) %}
+        {% endif %}
+        {% if input_name == name %}
+            {% set name_fk = call("getForeignKeyFieldForItemType", [dropdown_itemtype]) %}
+        {% endif %}
+        {{ macros.dropdownField(dropdown_itemtype, name_fk ?? input_name, dropdown_value, label, field_options|merge(dropdown_options|default({}))) }}
+
+    {% elseif type matches '/^dropdown-.+/i' %}
+        {% set dropdown_options = {'entity': item.getEntityID()} %}
+        {% if field['dropdown_condition'] is defined and field['dropdown_condition']|length %}
+            {% set dropdown_options = dropdown_options|merge({'condition': field['dropdown_condition']}) %}
+        {% endif %}
+        {% if field['dropdown_class'] == 'User' %}
+            {% set dropdown_options = dropdown_options|merge({'entity': -1, 'right': 'all'}) %}
+        {% elseif field['dropdown_class'] == 'Entity' or item.isRecursive() %}
+            {% set dropdown_options = dropdown_options|merge({'entity_sons': true}) %}
+        {% endif %}
+        {% if field['multiple'] %}
+            {% set dropdown_options = dropdown_options|merge({'multiple': true}) %}
+        {% endif %}
+        {{ macros.dropdownField(field['dropdown_class'], input_name, dropdown_value, label, field_options|merge(dropdown_options|default({}))) }}
+
+    {% elseif type == 'sanam_item' %}
+        {% if not massiveaction %}
+
+            {% if item is instanceof('Sanam\\Form\\Form') %}
+                {% set itemtype_input_name = input_name ~ '[itemtype]' %}
+                {% set items_id_input_name = input_name ~ '[items_id]' %}
+            {% else %}
+                {% set itemtype_input_name = 'itemtype_' ~ name %}
+                {% set items_id_input_name = 'items_id_' ~ name %}
+            {% endif %}
+
+            {% if container.fields['type'] == 'tab' %}
+                {# start new row for sanam object  #}
+                <div class="w-100"></div>
+            {% endif %}
+
+            {% set items_id_dropdown %}
+                {% do call('Ajax::updateItemOnSelectEvent',
+                    [
+                        'dropdown_' ~ itemtype_input_name ~ rand,
+                        'results_items_id' ~ (rand),
+                        config('root_doc') ~ '/ajax/dropdownAllItems.php',
+                        {
+                            'idtable'             : '__VALUE__',
+                            'name'                : items_id_input_name,
+                            'entity_restrict'     : item.getEntityID(),
+                            'dom_name'            : items_id_input_name,
+                            'display_emptychoice' : false,
+                            'action'              : 'get_items_from_itemtype',
+                            'dom_rand'            : rand,
+                            'width'               : '100%',
+                        }
+                ]) %}
+
+                <span id='results_items_id{{ rand }}' class='col-lg-14'>
+                    {% if value.itemtype|default('') != '' %}
+                        {{ macros.dropdownField(value.itemtype, items_id_input_name, value.items_id|default(''), ' ', field_options|merge({
+                            'entity': value.itemtype|default('') == 'User' ? -1 : item.getEntityID(),
+                            'rand': rand,
+                            'right': 'all',
+                            'displaywith': ['otherserial', 'serial'],
+                            'display_emptychoice' : false,
+                            'no_label': true,
+                            'full_width': true,
+                        })) }}
+                    {% endif %}
+                </span>
+            {% endset %}
+
+            {{ macros.dropdownArrayField(itemtype_input_name, value.itemtype|default(''), field['allowed_values'], label, field_options|merge({
+                'rand'               : rand,
+                'display_emptychoice': true,
+                'add_field_class'    : field_options.add_field_class|default('') ~ ' sanam-fields-plugin-sanam-item-field',
+                'add_field_html'     : items_id_dropdown
+            })) }}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{% if not already_wrapped and not dropdown_item%}
+
+                    {% if item.isNewItem() and item is instanceof('User') %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

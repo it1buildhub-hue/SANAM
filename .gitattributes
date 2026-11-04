@@ -1,0 +1,11 @@
+# Keep every byte as it is: the integrity check in core/version hashes the files.
+* -text
+
+# Language bar on GitHub: count the code written for this product, not bundled libraries.
+core/vendor/** linguist-vendored
+core/public/lib/** linguist-vendored
+core/public/build/** linguist-generated
+core/public/css_compiled/** linguist-generated
+core/locales/** linguist-generated
+docs/** linguist-documentation
+demo/** linguist-documentation

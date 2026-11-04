@@ -1,0 +1,99 @@
+/*!
+ * -------------------------------------------------------------------------
+ * Fields plugin for SANAM
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of Fields.
+ *
+ * Fields is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Fields is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Fields. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @copyright Copyright (C) 2013-2023 by Fields plugin team.
+ * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      #
+ * -------------------------------------------------------------------------
+ */
+
+// config
+ul.fields_config li {
+   cursor:pointer;
+   float:left;
+   width:20%;
+   border-radius: 5px;
+   margin:0 1% 10px;
+   padding:5px 1px;
+}
+
+ul.fields_config li:hover {
+   background-color:#E8E8E8;
+}
+
+ul.fields_config li p {
+   padding-top: 8px;
+}
+
+ul.fields_config li img {
+   float: left;
+   margin-right: 2px;
+}
+
+div.fields_clear {
+   clear: both;
+   width:100%;
+}
+
+[data-sanam-form-editor-question-type-specific] .sanam-fields-plugin-question-type-sanam-item-field .select2-selection:first-of-type:not(:only-child) {
+   border-radius: 0;
+}
+
+.sanam-fields-plugin-sanam-item-field,
+.sanam-fields-plugin-sanam-item-field .field-container {
+   &:has(> span select[data-select2-id]) {
+      > span:first-of-type .select2-selection {
+         border-bottom-left-radius: 0;
+         border-bottom-right-radius: 0;
+      }
+
+      > span:not(:first-of-type) {
+         .sanam-fields-plugin-question-type-sanam-item-field {
+            width: 100%;
+         }
+
+         .select2-selection {
+            margin-top: calc(-1 * var(--tblr-border-width));
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+         }
+
+         .dropdown_tooltip {
+            margin-top: calc(-1 * var(--tblr-border-width));
+
+            &:last-of-type {
+               border-bottom-right-radius: var(--tblr-border-radius);
+            }
+         }
+      }
+
+      > div:has([data-sanam-form-editor-question-type-fields-field-id-selector]) {
+         display: none;
+      }
+   }
+}
+
+.sanam-fields-plugin-question-type-sanam-destination-toggle {
+   .field-container > label {
+      margin-top: 0 !important;
+   }
+}

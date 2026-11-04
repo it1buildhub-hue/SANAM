@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * Fields plugin for SANAM
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of Fields.
+ *
+ * Fields is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Fields is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Fields. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @copyright Copyright (C) 2013-2023 by Fields plugin team.
+ * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      #
+ * -------------------------------------------------------------------------
+ */
+
+use Sanam\Exception\Http\AccessDeniedHttpException;
+
+Session::checkLoginUser();
+
+if (empty($_GET['id'])) {
+    $_GET['id'] = '';
+}
+
+$container = new PluginFieldsContainer();
+
+if (isset($_POST['add'])) {
+    $container->check(-1, CREATE, $_POST);
+    $newID = $container->add($_POST);
+    Html::redirect(PLUGINFIELDS_WEB_DIR . ('/front/container.form.php?id=' . $newID));
+} elseif (isset($_POST['delete'])) {
+    $container->check($_POST['id'], DELETE);
+    $ok = $container->delete($_POST);
+    Html::redirect(PLUGINFIELDS_WEB_DIR . '/front/container.php');
+} elseif (isset($_POST['purge'])) {
+    $container->check($_POST['id'], PURGE);
+    $container->delete($_POST, true);
+    Html::redirect(PLUGINFIELDS_WEB_DIR . '/front/container.php');
+} elseif (isset($_POST['update'])) {
+    $container->check($_POST['id'], UPDATE);
+    // structural fields drive generated classes and tables; only migrations may change them
+    unset($_POST['itemtypes'], $_POST['type'], $_POST['subtype']);
+    $container->update($_POST);
+    Html::back();
+} elseif (isset($_POST['rename_oversized'])) {
+    $container->check($_POST['id'], UPDATE);
+    PluginFieldsContainer::renameOversizedContainer((int) $_POST['id'], (string) ($_POST['new_name'] ?? ''));
+    Html::back();
+} elseif (isset($_POST['update_fields_values'])) {
+    if (!PluginFieldsContainer::canUpdateTargetItem($_REQUEST['itemtype'] ?? '', (int) ($_REQUEST['items_id'] ?? 0))) {
+        throw new AccessDeniedHttpException();
+    }
+
+    $right = PluginFieldsProfile::getRightOnContainer($_SESSION['sanamactiveprofile']['id'], $_POST['plugin_fields_containers_id']);
+    if ($right > READ) {
+        $dbu  = new DbUtils();
+        $item = $dbu->getItemForItemtype($_REQUEST['itemtype']);
+        if ($item === false || !$item->can((int) $_REQUEST['items_id'], UPDATE)) {
+            throw new AccessDeniedHttpException();
+        }
+
+        $container->updateFieldsValues(PluginFieldsContainer::removeReadonlyValues($_REQUEST, $item), $_REQUEST['itemtype'], false);
+    }
+
+    Html::back();
+} else {
+
+    // Admin config screen: gate with the standard "config" right, not the per-profile
+    // block-visibility right (which would let an admin lock himself out of the config).
+    $container->check((int) $_GET['id'] > 0 ? (int) $_GET['id'] : -1, READ);
+
+    Html::header(
+        __('Additional fields', 'fields'),
+        $_SERVER['PHP_SELF'],
+        'config',
+        'pluginfieldsmenu',
+        'fieldscontainer',
+    );
+    $container->display(['id' => $_GET['id']]);
+    Html::footer();
+}

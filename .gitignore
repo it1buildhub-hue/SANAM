@@ -1,0 +1,19 @@
+# Everything that belongs to a running copy stays on the server, never in this repository.
+/data/
+/core/config/
+/core/files/
+/core/plugins/sanamassets/
+
+# Secrets, wherever they end up
+LOGINS*.txt
+db-password*.txt
+config_db*.php
+*crypt.key
+oauth.pem
+oauth.pub
+.env
+.env.*
+
+# Database dumps made by hand (core/install/mysql holds the schema and must stay)
+/*.sql
+/backups/

@@ -1,0 +1,220 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * Fields plugin for SANAM
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of Fields.
+ *
+ * Fields is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Fields is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Fields. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @copyright Copyright (C) 2013-2023 by Fields plugin team.
+ * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      #
+ * -------------------------------------------------------------------------
+ */
+
+use Sanam\Application\View\TemplateRenderer;
+use Sanam\DBAL\JsonFieldInterface;
+use Sanam\Form\AnswersSet;
+use Sanam\Form\Destination\AbstractCommonITILFormDestination;
+use Sanam\Form\Destination\AbstractConfigField;
+use Sanam\Form\Destination\CommonITILField\Category;
+use Sanam\Form\Destination\CommonITILField\SimpleValueConfig;
+use Sanam\Form\Destination\FormDestination;
+use Sanam\Form\Form;
+use Sanam\Form\Question;
+use Sanam\Form\QuestionType\QuestionTypeItemDropdown;
+
+class PluginFieldsDestinationField extends AbstractConfigField
+{
+    /** @var array{itemtype: class-string<CommonDBTM>, fields: list<int>}|null Item a destination is about to create */
+    private static ?array $pending_item = null;
+
+    /** @var array<class-string<CommonDBTM>, array<int, list<int>>> Fields provided by the form, per item being created */
+    private static array $created_items = [];
+
+    /** @return list<int>|null Fields provided by the form, null when no destination is creating the item */
+    public static function getFieldsProvidedByForm(string $itemtype, int $items_id): ?array
+    {
+        // Also covers updates made by post_addItem(), before the "item_add" hook registers the item
+        return self::$created_items[$itemtype][$items_id] ?? ((self::$pending_item['itemtype'] ?? null) === $itemtype ? self::$pending_item['fields'] : null);
+    }
+
+    public static function registerCreatedItem(CommonDBTM $item): void
+    {
+        if ((self::$pending_item['itemtype'] ?? null) !== $item::class) {
+            return;
+        }
+
+        self::$created_items[$item::class][$item->getID()] = self::$pending_item['fields'];
+        self::$pending_item = null;
+    }
+
+    public function __construct(private readonly AbstractCommonITILFormDestination $itil_destination) {}
+
+    #[Override]
+    public function getLabel(): string
+    {
+        return __('Additional fields', 'fields');
+    }
+
+    #[Override]
+    public function getConfigClass(): string
+    {
+        return SimpleValueConfig::class;
+    }
+
+    #[Override]
+    public function renderConfigForm(
+        Form $form,
+        FormDestination $destination,
+        JsonFieldInterface $config,
+        string $input_name,
+        array $display_options,
+    ): string {
+        if (!$config instanceof SimpleValueConfig) {
+            throw new InvalidArgumentException("Unexpected config class");
+        }
+
+        $twig = TemplateRenderer::getInstance();
+        return $twig->render('@fields/destinationfield.html.twig', [
+            'value'      => $config->getValue(),
+            'input_name' => $input_name . "[" . SimpleValueConfig::VALUE . "]",
+            'options'    => $display_options,
+        ]);
+    }
+
+    #[Override]
+    public function applyConfiguratedValueToInputUsingAnswers(
+        JsonFieldInterface $config,
+        array $input,
+        AnswersSet $answers_set,
+    ): array {
+        if (!$config instanceof SimpleValueConfig) {
+            throw new InvalidArgumentException("Unexpected config class");
+        }
+
+        $provided_fields = [];
+
+        if ((bool) $config->getValue()) {
+            $answers = $answers_set->getAnswersByTypes([
+                PluginFieldsQuestionType::class,
+                QuestionTypeItemDropdown::class,
+            ]);
+
+            foreach ($answers as $answer) {
+                $value = null;
+                $question = Question::getById($answer->getQuestionId());
+                $block_id = PluginFieldsContainer::findContainer($this->itil_destination->getTarget()::class, 'dom');
+                if (!$block_id) {
+                    continue;
+                }
+
+                if ($question->getQuestionType() instanceof QuestionTypeItemDropdown) {
+                    $itemtype = (new QuestionTypeItemDropdown())->getDefaultValueItemtype($question);
+                    $field_name = $itemtype::getForeignKeyField();
+                    if (!str_starts_with($field_name, 'plugin_fields_')) {
+                        continue;
+                    }
+
+                    /** @var object{field_name: string} $item */
+                    $item = getItemForItemtype($itemtype);
+                    $field = new PluginFieldsField();
+                    if (!$field->getFromDBByCrit(['name' => $item->field_name])) {
+                        continue;
+                    }
+
+                    $value = $answer->getRawAnswer()['items_id'];
+                } else {
+                    $field_id = (new PluginFieldsQuestionType())->getDefaultValueFieldId($question);
+                    $field = PluginFieldsField::getById($field_id);
+                }
+
+                // Check that the field belongs to the correct block
+                if ($block_id != $field->fields[PluginFieldsContainer::getForeignKeyField()]) {
+                    continue;
+                }
+
+                $input['c_id'] = $block_id;
+                $provided_fields[] = $field->getID();
+                if ($field->fields['type'] == 'dropdown') {
+                    $field_name = 'plugin_fields_' . $field->fields['name'] . 'dropdowns_id';
+                } else {
+                    $field_name = $field->fields['name'];
+                }
+
+                if ($field->fields['type'] == 'sanam_item') {
+                    $input[sprintf('itemtype_%s', $field_name)] = $answer->getRawAnswer()['itemtype'];
+                    $input[sprintf('items_id_%s', $field_name)] = $answer->getRawAnswer()['items_id'];
+                } elseif (str_starts_with((string) $field->fields['type'], 'dropdown') && $field->fields['multiple']) {
+                    // Multiple dropdowns are submitted as an array of ids
+                    $raw_ids = (array) ($answer->getRawAnswer()['items_id'] ?? []);
+                    $input[$field_name] = array_values(array_filter(
+                        array_map(intval(...), $raw_ids),
+                        fn(int $id) => $id > 0,
+                    ));
+                } elseif (str_starts_with((string) $field->fields['type'], 'dropdown')) {
+                    $raw_id = (int) ($answer->getRawAnswer()['items_id'] ?? 0);
+                    $input[$field_name] = ($raw_id > 0) ? $raw_id : null;
+                } else {
+                    $input[$field_name] = $value ?? $answer->getRawAnswer();
+                }
+            }
+        }
+
+        // Mandatory fields the form does not provide must not block the creation
+        self::$pending_item = [
+            'itemtype' => $this->itil_destination->getTarget()::class,
+            'fields'   => $provided_fields,
+        ];
+
+        return $input;
+    }
+
+    #[Override]
+    public function applyConfiguratedValueAfterDestinationCreation(
+        FormDestination $destination,
+        JsonFieldInterface $config,
+        AnswersSet $answers_set,
+        array $created_objects,
+    ): void {
+        // The destination is done: its items are validated like any other from now on
+        self::$pending_item = null;
+        foreach ($created_objects[$destination->getID()] ?? [] as $item) {
+            unset(self::$created_items[$item::class][$item->getID()]);
+        }
+    }
+
+    #[Override]
+    public function getDefaultConfig(Form $form): SimpleValueConfig
+    {
+        return new SimpleValueConfig("1");
+    }
+
+    #[Override]
+    public function getWeight(): int
+    {
+        return 1000;
+    }
+
+    #[Override]
+    public function getCategory(): Category
+    {
+        return Category::PROPERTIES;
+    }
+}

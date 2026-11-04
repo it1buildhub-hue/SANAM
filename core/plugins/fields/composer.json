@@ -1,0 +1,23 @@
+{
+    "require": {
+        "php": ">=8.2",
+        "symfony/yaml": "^7.4"
+    },
+    "provide": {
+        "symfony/deprecation-contracts": "^3.0",
+        "symfony/polyfill-ctype": "^1.33"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "autoloader-suffix": "PluginFields",
+        "platform": {
+            "php": "8.2.99"
+        },
+        "sort-packages": true
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sanam\\Tools\\": "../../tools/src/"
+        }
+    }
+}

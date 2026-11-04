@@ -1,0 +1,49 @@
+/*!
+ * ---------------------------------------------------------------------
+ *
+ * SANAM
+ *
+ *
+ * @copyright 2015-2026 Teclib' and contributors.
+ * @copyright 2003-2014 by the INDEPNET Development Team.
+ * @licence   https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of SANAM.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * ---------------------------------------------------------------------
+ */
+
+:root[data-sanam-theme="teclib"] {
+    --tblr-primary-rgb: 188, 218, 26;
+    --tblr-primary-fg: #353b17;
+    --tblr-link-color-rgb: 169, 88, 185;
+    --sanam-mainmenu-bg: #a958b9; // hsl(290deg, 41%, 54%)
+    --sanam-helpdesk-header: hsl(291deg, 30%, 85%);
+    --sanam-mainmenu-fg: #fff;
+    --sanam-palette-color-1: #ba77c8;
+    --sanam-palette-color-2: #8e21a1;
+    --sanam-palette-color-3: #f1f1f2;
+    --sanam-palette-color-4: #bcda1a;
+
+    // Helpdesk header
+    --sanam-illustrations-gradient-1: hsl(290deg, 38%, 92%);
+    --sanam-illustrations-gradient-2: hsl(290deg, 38%, 72%);
+    --sanam-illustrations-gradient-3: hsl(290deg, 38%, 42%);
+}

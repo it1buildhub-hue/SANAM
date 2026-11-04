@@ -1,0 +1,75 @@
+/*!
+ * ---------------------------------------------------------------------
+ *
+ * SANAM
+ *
+ *
+ * @copyright 2015-2026 Teclib' and contributors.
+ * @copyright 2003-2014 by the INDEPNET Development Team.
+ * @licence   https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of SANAM.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * ---------------------------------------------------------------------
+ */
+
+$is-dark: true;
+
+:root[data-sanam-theme="auror_dark"] {
+    --tblr-dark: #232e3c;
+    --tblr-light: #9ca8c0;
+    --tblr-body-bg: #1f2936; // hsl(213.9deg, 27.1%, 16.7%)
+    --tblr-bg-surface: #232e3c;
+    --tblr-body-color: #9ca8c0;
+    --tblr-primary-rgb: 254, 201, 92;
+    --tblr-primary-fg: #644e21;
+    --tblr-secondary: #b0bbd4;
+    --tblr-secondary-fg: #262d3d;
+    --tblr-link-color-rgb: 182, 195, 224;
+    --tblr-muted: #757d91;
+    --tblr-badge-bg: var(--tblr-light);
+    --tblr-badge-color: var(--tblr-dark);
+    --sanam-form-header-fg: #6ba8f3;
+    --sanam-form-header-border-color: transparent;
+    --sanam-mainmenu-bg: #232e3c;
+    --sanam-mainmenu-fg: #ffffffb3;
+    --sanam-helpdesk-header: hsl(213.9deg, 27.1%, 30.7%);
+    --sanam-helpdesk-tiles-section-bg: hsl(213.9deg, 27.1%, 25.7%);
+    --sanam-helpdesk-tabs-section-bg: hsl(213.9deg, 27.1%, 20.7%);
+    --sanam-tabs-bg: #1d2531;
+    --sanam-tabs-fg: var(--tblr-light);
+    --sanam-tabs-border-color: transparent;
+    --sanam-tabs-active-bg: #2a3a4f;
+    --sanam-tabs-active-fg: #d8dfe7;
+    --sanam-tabs-active-border-color: transparent;
+    --sanam-itil-secondary-bg: #1d2531;
+    --sanam-timeline-fup-bg: #1c2430;
+    --sanam-timeline-fup-fg: #8892a8;
+    --sanam-timeline-fup-border: #2f3d50;
+    --sanam-palette-color-1: #1b2f62;
+    --sanam-palette-color-2: #131425;
+    --sanam-palette-color-3: #3a5693;
+    --sanam-palette-color-4: #fec95c;
+
+    // Helpdesk header
+    --sanam-illustrations-gradient-1: hsl(213.9deg, 27.1%, 70%);
+    --sanam-illustrations-gradient-2: hsl(213.9deg, 27.1%, 40%);
+    --sanam-illustrations-gradient-3: hsl(213.9deg, 27.1%, 20%);
+}

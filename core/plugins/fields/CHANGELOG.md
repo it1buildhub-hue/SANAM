@@ -1,0 +1,416 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [1.24.7] - 2026-10-28
+
+### Fixed
+
+- Fix item creation failing when a Yes/No field has a non boolean default value
+- Fix mandatory fields of a block hidden by its display conditions blocking the save of an item
+- Fix rendering error `unknown named parameters` for duplicated form
+- Fix fields values updates not applying the expected checks in some cases
+- Fix `Yes/No` field values returned as strings instead of integers in search results
+- Fix ticket observers being able to edit and save additional fields they are not allowed to modify
+- Fix mandatory fields blocking ticket creation from a SANAM form.
+- Fix massive update of fields of a tab block not saved when the item has several tab blocks
+- Disable containers whose table name exceeds MySQL's 64-character limit instead of crashing; rename them from their edit form to reactivate, recovering existing data when a matching table is found.
+- `plugins:fields:check_database` now also reports container/item type pairs with no matching table, and tables with no matching container/item type pair.
+
+## [1.24.6] - 2026-10-06
+
+### Added
+
+- Display translated fields names in fields' tab
+
+### Fixed
+
+- Fix value mapping between a multiple dropdown field and its destination in a form
+- Fix display width for rich text fields
+- Fix massive action update on CustomAssets
+- Fix mandatory fields on a Tab block not being enforced when updating an item.
+- Fix administrators losing access to a block's configuration after setting a profile to "no access" on that block.
+- Fix dependency conflict with SANAM core by no longer vendoring symfony/deprecation-contracts and symfony/polyfill-ctype.
+- Fix default field values not being applied when fields are empty on creation
+- Fix a field's default value not being applied to existing items and not being shown in search results for items with no dedicated row in the container table
+- Fix mandatory fields blocking automated item creation
+- Fix unclear mandatory field error when a SANAM form creating a ticket does not provide the field.
+- Fix blocks export, block deletion, read-only fields, item fields and form editor field selection not applying the expected checks.
+- Fix read-only status overrides being resolved from the previous status instead of the submitted one.
+- Fix read-only fields of an "Insertion in form" block being overwritable from the item form.
+- Fix a block's associated item types, type and tab being changeable after creation.
+- Remove obsolete FusionInventory integration.
+- CI: declare a unique composer autoloader suffix
+
+### Changed
+
+- A "SANAM item" field now rejects a new reference to an item the current user cannot read, instead of silently clearing it. Automated writes (CLI, cron, inventory) are not affected.
+
+## [1.24.5] - 2026-09-11
+
+### Fixed
+
+- Fix additional fields being saved on an item the user is not allowed to update
+- Fix additional fields being displayed for an item the user is not allowed to read
+- Fix invalid characters being kept in the generated field name
+- Fix missing right checks on the target item when displaying or saving additional fields values
+
+## [1.24.4] - 2026-08-06
+
+### Fixed
+
+- Fix an error displayed on the UI when trying to create a bloc display condition based on "Type" or "Model" fields for custom assets
+- Fix GenericObject dropdown fields never being migrated to CustomAsset dropdown fields
+
+## [1.24.3] - 2026-07-30
+
+### Fixed
+
+- Fix a container creation bug that was allowing to link incompatible container types and object types
+- Fix missing right checks on some ajax config endpoints and escape default value and URL field output.
+- Fix item creation with null value for mandatory fields
+- Fix search crash when two containers share a dropdown field with the same name.
+- Fix handle native SANAM dropdown types when binding additional fields to form destination
+- Fix container name/label corruption during GenericObject migration, which could break the migration with a MySQL identifier-length error.
+- Fix GenericObject type dropdowns migration
+
+## [1.24.2] - 2026-06-30
+
+### Fixed
+
+- Make "Associated item type" mandatory when creating a container.
+
+## [1.24.1] - 2026-06-24
+
+### Fixed
+
+- Fix the name of dropdown fields in logs when updating an item
+- Fix plugin configuration deletion during uninstallation
+- Fix nested array stored in DB for readonly dropdown
+- Fix migration abort when a GenericObject container name produces a table name exceeding MySQL's 64-character limit after conversion to SanamCustomAsset.
+- Fix empty dropdown value (-1) on form submission
+- Fix text area fields size and alignment
+- Optimize container loading when there are a large number of entities
+- Adding a verification in refreshContainer function for obj value which can be an empty string instead of an array
+- Fix refreshContainer crash when a field is serialized both as a scalar and as an array
+- Centralized label preparation and system name generation.
+
+## [1.24.0] - 2026-04-16
+
+### Added
+
+- Support for new value operators for “Field” question type linked to a field that is a dropdown in forms
+- Support for searching future dates and times in date/datetime fields
+
+### Fixed
+
+- Fix SQL warning when no user session is active during plugin init
+- Fix text area fields alignment
+- Fix error when submitting a form with an hidden question of type `Field`
+- Fixed a bug where a field was deleted when at least one question in a form was linked to another field
+
+## [1.23.4] - 2026-03-26
+
+### Fixed
+
+- Fix CRUD hooks to support the REST API regardless of session state
+- Fix SQL errors with custom dropdown fields
+- Fix wrong values displayed in massive actions when a form contains multiple custom dropdowns
+- Fix field entity during parent asset entity transfer
+
+## [1.23.3] - 2026-02-12
+
+### Added
+
+- Add compatibility with SANAM `CustomAsset`
+
+### Fixed
+
+- Fix `CVE-2026-23489`
+- Fix migration error caused by unknown itemtype in containers
+- Fix empty default value in multiple dropdown fields
+
+## [1.23.2] - 2025-12-22
+
+- Fix prevent failure when attempting to delete an actor
+- Fix form `path` for `tab` `container`
+- Fix error during Forms migration when block is not on root entity
+
+## [1.23.1] - 2025-11-20
+
+- Fix `add` operations when a linked object already exists before the plugin container fields are created.
+- Fix left side menu url (with `DIR_MARKETPLACE`)
+- Fix default value format for multiple dropdown (SANAMObject)
+- Fix bad SQL query for `GenericObject`
+- Fixed a bug that prevented the creation of additional field data for objects
+- Hide config menu if user does not have read permission
+
+## [1.23.0] - 2025-11-05
+
+### Added
+
+- Implement `Field` question type for new SANAM forms
+- Bind the answers to the `Field` question type to the corresponding additional fields
+- Update dropdowns layout/style for “SANAM Item” fields
+
+### Fixed
+
+- Align the fields of the plugin with the user form
+- Fix bad SQL query for `GenericObject`
+
+## [1.22.2] - 2025-10-24
+
+### Fixed
+
+- Fix `GenericObject` Model and Type migration
+- Fix `json_decode` using class with namespace
+- Fix drag and drop
+- Increased the maximum length of the language column to support longer locale codes
+- Fix left side menu url
+- Fix purge
+
+## [1.22.1] - 2025-10-10
+
+### Fixed
+
+- Fix UI with SANAM 11
+- Fix `tab` container not displayed
+
+## [1.22.0] - 2025-09-30
+
+### Added
+
+- SANAM 11 compatibility
+
+### Fixed
+
+- Fix  `massive action` for adding value to `multiple` dropdown fields
+- Fix for the `COALESCE` part of the `SQL query` for `multiple` dropdowns
+- Fix `search option` for `multiple` dropdown
+- Fix display from Planning view
+- Fix `classname` resolution when multiple `s` at end of container name
+
+
+## [1.21.24] - 2025-10-10
+
+### Fixed
+
+- Fix  `massive action` for adding value to `multiple` dropdown fields
+- Fix for the `COALESCE` part of the `SQL query` for `multiple` dropdowns
+- Fix `search option` for `multiple` dropdown
+- Fix display from Planning view
+- Fix `classname` resolution when multiple `s` at end of container name
+
+
+## [1.21.23] - 2025-08-26
+
+### Fixed
+
+- Fix undefined array key `multiple_dropdown_action` during import
+- Fix incompatibility of `multiple` dropdowns with `massiveaction`
+- Fix default value properly applied in multiple dropdown search options
+- Fix `search option` for default values in `multiple` dropdown
+- Fix shared dropdowns not displaying in `massiveaction`
+- The field name was empty in the SANAM logs
+
+### Added
+
+- Add `replace` and `add` options in massive action for the multiple dropdowns fields
+
+## [1.21.22] - 2025-05-28
+
+### Fixed
+
+- Fix condition check logic for dropdown field values
+- Fix validation for mandatory multiple dropdown
+- Fix `twig` error about undefined `dropdown_options`
+
+## [1.21.21] - 2025-03-21
+
+### Fixed
+
+- Fix of SANAM native fields update for objects with `fields` containers.
+
+## [1.21.20] - 2025-03-20
+
+### Fixed
+
+- Fix `numeric` field search
+- Fix containers migration while adding `is_recursive` field
+- Fix container update from other context (like plugins)
+- Fix "not equals" search operator for dropdown `multiple`
+- Fix container data (`entities_id`) insert from `dom` type
+
+## [1.21.19] - 2025-02-03
+
+### Fixed
+
+- Fix container update from `API`
+- Fix: fix default value for `dropdown` field to avoid empty dropdown
+
+## [1.21.18] - 2024-01-16
+
+### Fixed
+
+- Fix `PluginFieldsContainerDisplayCondition` display when value is no more available.
+- Fix issue where the value of custom fields could not be saved
+
+## [1.21.17] - 2024-12-26
+
+### Fixed
+
+- Force decimal `datatype` of `numeric` fields  for more accurate display.
+- Do not destroy the dropdown table/class if it is being used by another container.
+
+## [1.21.16] - 2024-12-11
+
+### Fixed
+
+- Fix `container` to prevent calls from `API` returning full container data
+
+## [1.21.15] - 2024-10-09
+
+### Fixed
+
+- Removes multiple document selection in a single field, as the core does not support it.
+
+## [1.21.14] - 2024-10-02
+
+### Fixed
+
+- Fix call to get_parent_class() for PHP 8.3 (#839)
+- Fix datatype for search (#836)
+
+## [1.21.13] - 2024-09-12
+
+### CVE-2024-45600
+
+- Fix SQL injection
+
+### Added
+
+- Add ```ComputerVirtualMachine```
+
+## [1.21.12] - 2024-09-06
+
+### Fixed
+
+- Fix handling of empty mandatory fields in generic objects.
+- Fix massive update for dropdown (shared by several containers)
+
+## [1.21.11] - 2024-07-10
+
+### Fixed
+
+- Fix ```strpslashes``` log error
+- Update main item ```date_mod``` after updating additional fields
+- Fix ```datainjection``` mapping error with additional fields
+
+## [1.21.10] - 2024-06-11
+
+### Fixed
+
+- Prevent compatibility issues when importing with the Datainjection plugin (#798)
+
+## [1.21.9] - 2024-06-11
+
+### Fixed
+
+- Fix dropdown recursion (#775)
+- Fix list of allowed Search Option (#778)
+- Fix(core): load plugin from CLI context
+- Fix: multiple dropdown fields emptied when solution added (#795)
+
+
+## [1.21.8] - 2024-02-22
+
+### Fixed
+
+- Fix crash about undefined array key
+
+
+## [1.21.7] - 2024-02-22
+
+### Added
+
+- Display generic label for field if not available
+
+### Fixed
+
+- Fix search on dropdown ```multiple```
+- Load all users from User dropdown
+- Handle / save empty choice for dropdown
+- Load overrides from related item if container is ```tab``` type
+- Deactivate ```domtab``` that no longer works and handle ```ITILSolution``` (see #)
+
+
+## [1.6.1] - 2017-03-09
+
+- Drop namespaces added in 1.6.0; SANAM is not ready
+- Revert back to zend-loader
+
+## [1.6.0] - 2017-03-03
+
+- Use Fedora/Autoloader, add namespaces
+- Normalize backslashes
+- Fix permissions issues (cannot create containers or fields)
+
+## [1.5.0] - 2017-01-27
+
+**Compatible with SANAM 9.1.2 and above**
+
+- Use post_item_form hook instead of javascript to display fields
+- Fix (and limit) dom tab possibilities
+
+## [1.4.5] - 2017-01-13
+- Set minimal PHP version to 5.4
+- Prevent values to be kept from a new ticket to another
+- Do not check files if plugin is not initialized
+- Limit to one domtab per tab
+
+## [1.4.4] - 2017-01-11
+- Fix issue on updating items on some cases
+- Fix issue on creating item on some cases
+- Fix cross plugin issue
+
+## [1.4.3] - 2016-12-30
+
+### Changed
+- Fix plugin blocks item update
+- Display translated headers
+- Do notable used minified files when debug mode is active
+
+## [1.4.2] - 2016-12-21
+
+### Changed
+- Fix field update
+- Fix path issue on windows
+- Fix profile restriction issues
+- Fix display on classic and vsplitted views
+
+## [1.4.1] - 2016-12-15
+
+### Added
+- Prepare translation on dropdown fields (inactive because of SANAM's issue #953)
+
+### Changed
+- Translate labels in search options
+- Fix adding bloc for specific tab
+- Fix dropdown pagination links
+- Fix validation issue creating new tickets
+- Fix checks consistency
+- Ensure we target only the first tab
+
+## [1.4.0] - 2016-12-13
+
+### Added
+- New URL field type.
+- Labels translation for containers and fields.
+
+### Changed
+- Improve uninstallation when generated classes are missing.
+- Update translations from [Transifex](#)
+- Fix self-service missing field on tickets

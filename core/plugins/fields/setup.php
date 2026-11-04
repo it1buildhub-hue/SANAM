@@ -1,0 +1,450 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * Fields plugin for SANAM
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of Fields.
+ *
+ * Fields is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Fields is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Fields. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @copyright Copyright (C) 2013-2023 by Fields plugin team.
+ * @license   GPLv2 https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      #
+ * -------------------------------------------------------------------------
+ */
+
+/** @var array $CFG_SANAM */
+global $CFG_SANAM;
+
+define('PLUGIN_FIELDS_VERSION', '1.24.7');
+
+// Minimal SANAM version, inclusive
+define('PLUGIN_FIELDS_MIN_SANAM', '11.0.2');
+// Maximum SANAM version, exclusive
+define('PLUGIN_FIELDS_MAX_SANAM', '11.0.99');
+
+if (!defined('PLUGINFIELDS_DIR')) {
+    define('PLUGINFIELDS_DIR', Plugin::getPhpDir('fields'));
+}
+
+if (!defined('PLUGINFIELDS_WEB_DIR')) {
+    define('PLUGINFIELDS_WEB_DIR', $CFG_SANAM['root_doc'] . '/plugins/fields');
+}
+
+if (!defined('PLUGINFIELDS_DOC_DIR')) {
+    define('PLUGINFIELDS_DOC_DIR', SANAM_PLUGIN_DOC_DIR . '/fields');
+}
+
+if (!file_exists(PLUGINFIELDS_DOC_DIR)) {
+    mkdir(PLUGINFIELDS_DOC_DIR);
+}
+
+if (!defined('PLUGINFIELDS_CLASS_PATH')) {
+    define('PLUGINFIELDS_CLASS_PATH', PLUGINFIELDS_DOC_DIR . '/inc');
+}
+
+if (!file_exists(PLUGINFIELDS_CLASS_PATH)) {
+    mkdir(PLUGINFIELDS_CLASS_PATH);
+}
+
+if (!defined('PLUGINFIELDS_FRONT_PATH')) {
+    define('PLUGINFIELDS_FRONT_PATH', PLUGINFIELDS_DOC_DIR . '/front');
+}
+
+if (!file_exists(PLUGINFIELDS_FRONT_PATH)) {
+    mkdir(PLUGINFIELDS_FRONT_PATH);
+}
+
+use Sanam\Form\Destination\FormDestinationChange;
+use Sanam\Form\Destination\FormDestinationManager;
+use Sanam\Form\Destination\FormDestinationProblem;
+use Sanam\Form\Destination\FormDestinationTicket;
+use Sanam\Form\Migration\TypesConversionMapper;
+use Sanam\Form\Question;
+use Sanam\Form\QuestionType\QuestionTypesManager;
+use Sanam\Plugin\Hooks;
+use Symfony\Component\Yaml\Yaml;
+
+/**
+ * Init hooks of the plugin.
+ * REQUIRED
+ *
+ * @return void
+ */
+function plugin_init_fields()
+{
+    /** @var array $PLUGIN_HOOKS */
+    global $PLUGIN_HOOKS;
+
+    $PLUGIN_HOOKS['csrf_compliant']['fields'] = true;
+
+    // manage autoload of plugin custom classes
+    include_once(PLUGINFIELDS_DIR . '/inc/autoload.php');
+
+    // manage autoload of vendor classes
+    include_once(PLUGINFIELDS_DIR . '/vendor/autoload.php');
+    $pluginfields_autoloader = new PluginFieldsAutoloader([PLUGINFIELDS_CLASS_PATH]);
+    $pluginfields_autoloader->register();
+
+    if (!Plugin::isPluginActive('fields')) {
+        return;
+    }
+
+    // Register CRUD hooks for all itemtypes that have Fields containers.
+    // These hooks must be registered regardless of session state so that
+    // REST API and CLI contexts also trigger the plugin data persistence.
+    // Permission checks are enforced inside the hook callbacks themselves.
+    $itemtypes = PluginFieldsContainer::getUsedItemtypes();
+    if ($itemtypes !== false) {
+        foreach ($itemtypes as $itemtype) {
+            $PLUGIN_HOOKS['pre_item_update']['fields'][$itemtype] = [
+                'PluginFieldsContainer',
+                'preItemUpdate',
+            ];
+            $PLUGIN_HOOKS['pre_item_add']['fields'][$itemtype] = [
+                'PluginFieldsContainer',
+                'preItem',
+            ];
+            $PLUGIN_HOOKS['item_add']['fields'][$itemtype] = [
+                'PluginFieldsContainer',
+                'postItemAdd',
+            ];
+            $PLUGIN_HOOKS['pre_item_purge']['fields'][$itemtype] = [
+                'PluginFieldsContainer',
+                'preItemPurge',
+            ];
+        }
+    }
+
+    $PLUGIN_HOOKS[Hooks::ITEM_TRANSFER]['fields'] = 'plugin_item_transfer_fields';
+
+    // Register fields question type
+    plugin_fields_register_plugin_types();
+    $PLUGIN_HOOKS['pre_item_add']['fields'][Question::class] = PluginFieldsQuestionType::preQuestionAdd(...);
+
+    if (Session::getLoginUserID() || isCommandLine()) {
+        // Init hook about itemtype(s) for plugin fields
+        if (!isset($PLUGIN_HOOKS['plugin_fields'])) {
+            $PLUGIN_HOOKS['plugin_fields'] = [];
+        }
+
+        // When a Category is changed during ticket creation
+        if (
+            $_POST !== []
+            && isset($_POST['_plugin_fields_type'])
+            && ($_SERVER['REQUEST_URI'] == Ticket::getFormURL())
+        ) {
+            foreach ($_POST as $key => $value) {
+                if (!is_array($value)) {
+                    $_SESSION['plugin']['fields']['values_sent'][$key] = $value;
+                }
+            }
+        }
+
+        if (isset($_SESSION['sanamactiveentities'])) {
+            // add link in plugin page
+            $PLUGIN_HOOKS['config_page']['fields'] = 'front/container.php';
+
+            // add entry to configuration menu (only if user has read access to config)
+            if (Session::haveRight('config', READ)) {
+                $PLUGIN_HOOKS['menu_toadd']['fields'] = ['config' => PluginFieldsMenu::class];
+            }
+
+            // add tabs to itemtypes
+            $itemtypes = array_unique(PluginFieldsContainer::getEntries());
+            if ($itemtypes !== []) {
+                Plugin::registerClass(
+                    'PluginFieldsContainer',
+                    ['addtabon' => $itemtypes],
+                );
+            }
+
+            //include js and css
+            $debug = (isset($_SESSION['sanam_use_mode'])
+                   && $_SESSION['sanam_use_mode'] == Session::DEBUG_MODE);
+            if (!$debug && file_exists(__DIR__ . '/public/css/fields.min.css')) {
+                $PLUGIN_HOOKS['add_css']['fields'][] = 'css/fields.min.css';
+            } else {
+                $PLUGIN_HOOKS['add_css']['fields'][] = 'css/fields.scss';
+            }
+
+            // Add/delete profiles to automaticaly to container
+            $PLUGIN_HOOKS['item_add']['fields']['Profile']       = ['PluginFieldsProfile', 'addNewProfile'];
+            $PLUGIN_HOOKS['pre_item_purge']['fields']['Profile'] = ['PluginFieldsProfile', 'deleteProfile'];
+
+            //load drag and drop javascript library on Package Interface
+
+            if (
+                plugin_fields_script_endswith('container.form.php')
+            ) {
+                $PLUGIN_HOOKS['add_javascript']['fields'][] = 'lib/redips-drag-min.js';
+                if (!$debug && file_exists(__DIR__ . '/public/js/drag-field-row.min.js')) {
+                    $PLUGIN_HOOKS['add_javascript']['fields'][] = 'js/drag-field-row.min.js';
+                } else {
+                    $PLUGIN_HOOKS['add_javascript']['fields'][] = 'js/drag-field-row.js';
+                }
+            }
+        }
+
+        // Add Fields to Datainjection
+        if (Plugin::isPluginActive('datainjection')) {
+            $PLUGIN_HOOKS['plugin_datainjection_populate']['fields'] = 'plugin_datainjection_populate_fields';
+        }
+
+        // Display fields in any existing tab
+        $PLUGIN_HOOKS['post_item_form']['fields'] = [
+            'PluginFieldsField',
+            'showForTab',
+        ];
+    }
+}
+
+
+/**
+ * Check if the script name finish by
+ *
+ * @param string $scriptname
+ * @return boolean
+ */
+function plugin_fields_script_endswith($scriptname)
+{
+    return str_contains((string) ($_SERVER['REQUEST_URI'] ?? ''), $scriptname);
+}
+
+
+
+
+/**
+ * Get the name and the version of the plugin
+ * REQUIRED
+ *
+ * @return array
+ */
+function plugin_version_fields()
+{
+    return [
+        'name'         => __('Additional fields', 'fields'),
+        'version'      => PLUGIN_FIELDS_VERSION,
+        'author'       => "Teclib', Olivier Moron",
+        'homepage'     => '#',
+        'license'      => 'GPLv2+',
+        'requirements' => [
+            'sanam' => [
+                'min' => PLUGIN_FIELDS_MIN_SANAM,
+                'max' => PLUGIN_FIELDS_MAX_SANAM,
+                'dev' => true, //Required to allow 9.2-dev
+            ],
+        ],
+    ];
+}
+
+/**
+ * Check pre-requisites before install
+ * OPTIONNAL, but recommanded
+ *
+ * @return boolean
+ */
+function plugin_fields_check_prerequisites()
+{
+    if (!is_readable(__DIR__ . '/vendor/autoload.php') || !is_file(__DIR__ . '/vendor/autoload.php')) {
+        echo 'Run composer install --no-dev in the plugin directory<br>';
+
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Check all stored containers files (classes & front) are present, or create they if needed
+ *
+ * @return void
+ */
+function plugin_fields_checkFiles()
+{
+    /** @var DBmysql $DB */
+    global $DB;
+
+    // Clean all existing files
+    array_map(unlink(...), glob(PLUGINFIELDS_DOC_DIR . '/*/*'));
+
+    // Regenerate dropdowns
+    if ($DB->tableExists(PluginFieldsField::getTable())) {
+        $fields_obj = new PluginFieldsField();
+        $fields     = $fields_obj->find(['type' => 'dropdown']);
+        foreach ($fields as $field) {
+            PluginFieldsDropdown::create($field);
+        }
+    }
+
+    // Regenerate containers
+    if ($DB->tableExists(PluginFieldsContainer::getTable())) {
+        $container_obj = new PluginFieldsContainer();
+        $containers    = $container_obj->find();
+
+        foreach ($containers as $container) {
+            PluginFieldsContainer::create($container);
+        }
+    }
+
+}
+
+function plugin_fields_exportBlockAsYaml($container_id = null)
+{
+    /** @var DBmysql $DB */
+    global $DB;
+
+    $yaml_conf = [
+        'container' => [],
+    ];
+
+    if (isset($_SESSION['sanamactiveentities']) && Session::getLoginUserID() && Plugin::isPluginActive('fields') && $DB->tableExists(PluginFieldsContainer::getTable())) {
+        $where              = [];
+        $where['is_active'] = true;
+        if ($container_id != null) {
+            $where['id'] = $container_id;
+        }
+
+        $container_obj = new PluginFieldsContainer();
+        $containers    = $container_obj->find($where);
+        foreach ($containers as $container) {
+            if (
+                !Session::haveAccessToEntity((int) $container['entities_id'], (bool) $container['is_recursive'])
+                || PluginFieldsProfile::getRightOnContainer((int) ($_SESSION['sanamactiveprofile']['id'] ?? 0), (int) $container['id']) < READ
+            ) {
+                continue;
+            }
+
+            $itemtypes = ((string) $container['itemtypes'] !== '')
+                ? PluginFieldsToolbox::decodeJSONItemtypes($container['itemtypes'], true)
+                : [];
+
+            foreach ($itemtypes as $itemtype) {
+                $fields_obj = new PluginFieldsField();
+                // to get translation
+                $container['itemtype']                                      = PluginFieldsContainer::getType();
+                $yaml_conf['container'][$container['id'] . '-' . $itemtype] = [
+                    'id'       => (int) $container['id'],
+                    'name'     => PluginFieldsLabelTranslation::getLabelFor($container),
+                    'itemtype' => $itemtype,
+                    'type'     => $container['type'],
+                    'subtype'  => $container['subtype'],
+                    'fields'   => [],
+                ];
+                $fields = $fields_obj->find(['plugin_fields_containers_id' => $container['id'],
+                    'is_active'                                            => true,
+                    'is_readonly'                                          => false,
+                ]);
+                if (count($fields) > 0) {
+                    foreach ($fields as $field) {
+                        $tmp_field       = [];
+                        $tmp_field['id'] = (int) $field['id'];
+
+                        //to get translation
+                        $field['itemtype']           = PluginFieldsField::getType();
+                        $tmp_field['label']          = PluginFieldsLabelTranslation::getLabelFor($field);
+                        $tmp_field['xml_node']       = strtoupper((string) $field['name']);
+                        $tmp_field['type']           = $field['type'];
+                        $tmp_field['ranking']        = $field['ranking'];
+                        $tmp_field['default_value']  = $field['default_value'];
+                        $tmp_field['mandatory']      = $field['mandatory'];
+                        $tmp_field['possible_value'] = '';
+
+                        switch ($field['type']) {
+                            case 'dropdown':
+                                $dbu = new DbUtils();
+                                $obj = $dbu->getItemForItemtype($itemtype);
+                                $obj->getEmpty();
+
+                                $dropdown_itemtype     = PluginFieldsDropdown::getClassname($field['name']);
+                                $tmp_field['xml_node'] = strtoupper(getForeignKeyFieldForItemType($dropdown_itemtype));
+
+                                $dropdown_obj = $dbu->getItemForItemtype($dropdown_itemtype);
+                                $dropdown_datas = $dropdown_obj->find();
+                                $datas          = [];
+                                foreach ($dropdown_datas as $value) {
+                                    $items          = [];
+                                    $items['id']    = (int) $value['id'];
+                                    $items['value'] = $value['name'];
+                                    $datas[]        = $items;
+                                }
+
+                                $tmp_field['possible_value'] = $datas;
+                                break;
+                            case 'yesno':
+                                $datas                       = [];
+                                $datas['0']['id']            = 0;
+                                $datas['0']['value']         = __('No');
+                                $datas['1']['id']            = 1;
+                                $datas['1']['value']         = __('Yes');
+                                $tmp_field['possible_value'] = $datas;
+                                break;
+                            case 'dropdownuser':
+                                $datas                       = Dropdown::getDropdownUsers(['is_active' => 1, 'is_deleted' => 0], false);
+                                $tmp_field['possible_value'] = $datas['results'];
+                                break;
+                        }
+
+                        $yaml_conf['container'][$container['id'] . '-' . $itemtype]['fields'][] = $tmp_field;
+                    }
+                }
+            }
+        }
+    }
+
+    if ($yaml_conf['container'] !== []) {
+        $dump     = Yaml::dump($yaml_conf, 10);
+        $filename = SANAM_TMP_DIR . '/fields_conf.yaml';
+        file_put_contents($filename, $dump);
+
+        return true;
+    }
+
+    return false;
+}
+
+function plugin_fields_register_plugin_types(): void
+{
+    $types = QuestionTypesManager::getInstance();
+    $type_mapper = TypesConversionMapper::getInstance();
+    $destination_manager = FormDestinationManager::getInstance();
+
+    // Register question category, type and converter if valid fields are defined
+    if (PluginFieldsQuestionType::hasAvailableFields()) {
+        // Register question category
+        $types->registerPluginCategory(new PluginFieldsQuestionTypeCategory());
+
+        // Register question type
+        $types->registerPluginQuestionType(new PluginFieldsQuestionType());
+
+        // Register common ITIL field for tickets, changes and problems
+        foreach ([
+            new FormDestinationTicket(),
+            new FormDestinationChange(),
+            new FormDestinationProblem(),
+        ] as $itil_destination) {
+            $destination_manager->registerPluginCommonITILConfigField(
+                $itil_destination::class,
+                new PluginFieldsDestinationField($itil_destination),
+            );
+        }
+
+        // Register converter for migration
+        $type_mapper->registerPluginQuestionTypeConverter('fields', new PluginFieldsQuestionType());
+    }
+}

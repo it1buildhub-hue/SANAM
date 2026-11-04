@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * ---------------------------------------------------------------------
+ *
+ * SANAM
+ *
+ *
+ * @copyright 2015-2026 Teclib' and contributors.
+ * @licence   https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of SANAM.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * ---------------------------------------------------------------------
+ */
+
+namespace Sanam\Console\User;
+
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use User;
+
+class EnableCommand extends AbstractUserCommand
+{
+    protected function configure(): void
+    {
+        parent::configure();
+
+        $this->setName('user:enable');
+        $this->setDescription(__('Enable a SANAM user'));
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    {
+        $username = $input->getArgument('username');
+        $user = new User();
+        if ($user->getFromDBbyName($username)) {
+            $user->update([
+                'id' => $user->getID(),
+                'is_active' => 1,
+            ]);
+            $output->writeln('<info>' . __('User enabled') . '</info>');
+            return 0;
+        } else {
+            $output->writeln('<error>' . __('User not found') . '</error>');
+            return 1;
+        }
+    }
+}

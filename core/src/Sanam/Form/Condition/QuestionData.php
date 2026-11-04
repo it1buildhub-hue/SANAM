@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * ---------------------------------------------------------------------
+ *
+ * SANAM
+ *
+ *
+ * @copyright 2015-2026 Teclib' and contributors.
+ * @licence   https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * ---------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of SANAM.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * ---------------------------------------------------------------------
+ */
+
+namespace Sanam\Form\Condition;
+
+use Sanam\Form\QuestionType\QuestionTypeInterface;
+
+final class QuestionData
+{
+    public function __construct(
+        private string $uuid,
+        private string $name,
+        private QuestionTypeInterface $type,
+        private ?array $extra_data,
+        private ?string $section_uuid = null,
+    ) {}
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
+
+    public function getType(): QuestionTypeInterface
+    {
+        return $this->type;
+    }
+
+    public function getExtraData(): ?array
+    {
+        return $this->extra_data;
+    }
+
+    public function getSectionUuid(): ?string
+    {
+        return $this->section_uuid;
+    }
+}

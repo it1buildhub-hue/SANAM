@@ -1,0 +1,170 @@
+<?php
+
+use Sanam\DBAL\QueryParam;
+
+class %%CLASSNAME%% extends PluginFieldsAbstractContainerInstance
+{
+   static $rightname = %%ITEMTYPE_RIGHT%%;
+
+   static function install() {
+      global $DB;
+
+      $default_charset = DBConnection::getDefaultCharset();
+      $default_collation = DBConnection::getDefaultCollation();
+      $default_key_sign = DBConnection::getDefaultPrimaryKeySignOption();
+
+      $obj = new self();
+      $table = $obj->getTable();
+      $migration = new PluginFieldsMigration(0);
+
+      // create Table
+      if (!$DB->tableExists($table)) {
+         $query = "CREATE TABLE IF NOT EXISTS `$table` (
+                  `id`                               INT          {$default_key_sign} NOT NULL auto_increment,
+                  `items_id`                         INT          {$default_key_sign} NOT NULL,
+                  `itemtype`                         VARCHAR(255) DEFAULT " . var_export(%%ITEMTYPE%%, true) . ",
+                  `plugin_fields_containers_id`      INT          {$default_key_sign} NOT NULL DEFAULT " . var_export(%%CONTAINER%%, true) . ",
+                  PRIMARY KEY                        (`id`),
+                  UNIQUE INDEX `itemtype_item_container`
+                     (`itemtype`, `items_id`, `plugin_fields_containers_id`)
+               ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+         $DB->doQuery($query);
+      } else {
+         // 1.15.4
+         // fix nullable state for 'sanam_item' field
+         $result = $DB->doQuery("SHOW COLUMNS FROM `$table`");
+         if ($result && $DB->numrows($result) > 0) {
+            $changed = false;
+            while ($data = $DB->fetchAssoc($result)) {
+               if (str_starts_with($data['Field'], 'itemtype_') && $data['Null'] !== 'YES') {
+                  $migration->changeField($table, $data['Field'], $data['Field'], "varchar(100) DEFAULT NULL");
+                  $changed = true;
+               }
+            }
+            if ($changed) {
+               $migration->executeMigration();
+            }
+         }
+      }
+
+      /**
+      * Adds the 'entities_id' field to the database table and migrates existing data.
+      *
+      * This block ensures that the 'entities_id' field is created and populated if it
+      * associated item type requires entity assignment
+      */
+      if (getItemForItemtype(%%ITEMTYPE%%::class)->isEntityAssign() && !$DB->fieldExists($table, 'entities_id')) {
+         $migration->addField($table, 'entities_id', 'fkey', ['after' => 'plugin_fields_containers_id']);
+         $migration->addKey($table, 'entities_id');
+         $migration->executeMigration();
+
+         // migrate data
+         $query = $DB->buildUpdate(
+               $table,
+               ['entities_id' => new QueryParam()],
+               ['id'       => new QueryParam()]
+         );
+         $stmt = $DB->prepare($query);
+
+         //load all entries
+         $data = $DB->request(
+            [
+               'SELECT'    => '*',
+               'FROM'      => $table,
+            ]
+         );
+
+         foreach ($data as $fields) {
+            //load related item
+            $related_item = $DB->request(
+               [
+                  'SELECT'    => '*',
+                  'FROM'      => getTableForItemType($fields['itemtype']),
+                  'WHERE'     => [
+                        'id'      => $fields['items_id'],
+                     ]
+               ]
+            )->current();
+
+            if ($related_item === null) {
+                continue;
+            }
+
+            //update if needed
+            if ($fields['entities_id'] != $related_item['entities_id']) {
+               $stmt->bind_param(
+                  'ii',
+                  $related_item['entities_id'],
+                  $fields['id']
+               );
+               $stmt->execute();
+            }
+         }
+      }
+
+      /**
+      * Adds the 'is_recursive' field to the database table and migrates existing data.
+      *
+      * This block ensures that the 'is_recursive' field is created and populated if it
+      * associated item type requires recursive assignment
+      */
+      if (
+         getItemForItemtype(%%ITEMTYPE%%::class)->maybeRecursive()
+         && !$DB->fieldExists($table, 'is_recursive')
+         && $DB->fieldExists($table, 'entities_id')) {
+         $migration->addField($table, 'is_recursive', 'bool', ['after'  => 'entities_id']);
+         $migration->addKey($table, 'is_recursive');
+         $migration->executeMigration();
+
+         //migrate data
+         $query = $DB->buildUpdate(
+            $table,
+            ['is_recursive' => new QueryParam()],
+            ['id'       => new QueryParam()]
+         );
+         $stmt = $DB->prepare($query);
+
+         //load all entries
+         $data = $DB->request(
+            [
+               'SELECT'    => '*',
+               'FROM'      => $table,
+            ]
+         );
+
+         foreach ($data as $fields) {
+            //load related item
+            $related_item = $DB->request(
+               [
+                  'SELECT'    => '*',
+                  'FROM'      => getTableForItemType($fields['itemtype']),
+                  'WHERE'     => [
+                        'id'      => $fields['items_id'],
+                     ]
+               ]
+            )->current();
+
+            if ($related_item === null) {
+                continue;
+            }
+
+            //update if needed
+            if ($fields['is_recursive'] != $related_item['is_recursive']) {
+               $stmt->bind_param(
+                  'ii',
+                  $related_item['is_recursive'],
+                  $fields['id']
+               );
+               $stmt->execute();
+            }
+         }
+      }
+   }
+
+   static function uninstall() {
+      global $DB;
+
+      $obj = new self();
+      return $DB->doQuery("DROP TABLE IF EXISTS `".$obj->getTable()."`");
+   }
+}
