@@ -1,0 +1,63 @@
+/*!
+ * ---------------------------------------------------------------------
+ *
+ * SANAM
+ *
+ * The Official Signature Palette: Luxury Royal Gold & Deep Obsidian
+ *
+ * ---------------------------------------------------------------------
+ */
+
+$is-dark: true;
+
+:root[data-sanam-theme="sanam"] {
+    --tblr-dark: #07090E;
+    --tblr-light: #FCEFD2;
+    --tblr-body-bg: #0A0D15;
+    --tblr-bg-surface: #101522;
+    --tblr-bg-surface-secondary: #0E121C;
+    --tblr-bg-surface-tertiary: #141A29;
+    --tblr-body-color: #E2E8F0;
+    --tblr-primary-rgb: 196, 164, 119;
+    --tblr-primary: #C4A477;
+    --tblr-primary-fg: #0A0D15;
+    --tblr-primary-darken: #A57D3E;
+    --tblr-secondary: #E5C78A;
+    --tblr-secondary-fg: #0A0D15;
+    --tblr-link-color-rgb: 223, 186, 115;
+    --tblr-link-hover-color-rgb: 252, 239, 210;
+    --tblr-muted: #8E9BAE;
+    --tblr-badge-bg: rgba(196, 164, 119, 0.15);
+    --tblr-badge-color: #E5C78A;
+    --tblr-border-color: rgba(196, 164, 119, 0.22);
+    --sanam-form-header-fg: #E5C78A;
+    --sanam-form-header-border-color: rgba(196, 164, 119, 0.25);
+    --sanam-mainmenu-bg: #07090E;
+    --sanam-mainmenu-fg: #F3E5AB;
+    --sanam-helpdesk-header: #141A28;
+    --sanam-helpdesk-tiles-section-bg: #101522;
+    --sanam-helpdesk-tabs-section-bg: #0C1019;
+    --sanam-tabs-bg: #0E121B;
+    --sanam-tabs-fg: #8E9BAE;
+    --sanam-tabs-border-color: rgba(196, 164, 119, 0.15);
+    --sanam-tabs-active-bg: #1A2234;
+    --sanam-tabs-active-fg: #FCEFD2;
+    --sanam-tabs-active-border-color: #C4A477;
+    --sanam-itil-secondary-bg: #0D111A;
+    --sanam-timeline-fup-bg: #101520;
+    --sanam-timeline-fup-fg: #CBD5E1;
+    --sanam-timeline-fup-border: rgba(196, 164, 119, 0.2);
+    --sanam-palette-color-1: #07090E;
+    --sanam-palette-color-2: #FFFFFF;
+    --sanam-palette-color-3: #C4A477;
+    --sanam-palette-color-4: #D4AF37;
+
+    // Logos
+    --sanam-logo-light: url("/plugins/sanamassets/public/sanam-logo.png");
+    --sanam-logo-dark: url("/plugins/sanamassets/public/sanam-logo.png");
+    --sanam-logo-light-login: url("/plugins/sanamassets/public/sanam-logo.png");
+    --sanam-logo-dark-login: url("/plugins/sanamassets/public/sanam-logo.png");
+    --sanam-logo-light-reduced: url("/plugins/sanamassets/public/sanam-mark.png");
+    --sanam-logo-dark-reduced: url("/plugins/sanamassets/public/sanam-mark.png");
+    --sanam-logo-reduced: url("/plugins/sanamassets/public/sanam-mark.png");
+}

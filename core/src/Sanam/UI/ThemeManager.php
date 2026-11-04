@@ -48,7 +48,7 @@ use function Safe\scandir;
  */
 class ThemeManager
 {
-    public const DEFAULT_THEME = 'auror';
+    public const DEFAULT_THEME = 'sanam';
     public const CORE_THEME_ROOT = SANAM_ROOT . '/css/palettes/';
 
     private array $core_themes = [];
@@ -71,6 +71,7 @@ class ThemeManager
     {
         if ($this->core_themes === []) {
             $this->core_themes = [
+                new Theme('sanam', 'SANAM Royal Gold (Signature)', true, false),
                 new Theme('aerialgreen', 'Aerial Green', false, false),
                 new Theme('auror', 'Auror', false, false),
                 new Theme('auror_dark', 'Dark Auror', true, false),
