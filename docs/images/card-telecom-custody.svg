@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 270" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cardBg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#140F1E"/>
+      <stop offset="50%" stop-color="#0B0912"/>
+      <stop offset="100%" stop-color="#06050A"/>
+    </linearGradient>
+    <linearGradient id="borderGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A855F7" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#C4A477" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#221133" stop-opacity="0.3"/>
+    </linearGradient>
+    <radialGradient id="glow3" cx="15%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#A855F7" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#0B0E17" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="540" height="270" rx="14" fill="url(#cardBg3)" stroke="url(#borderGrad3)" stroke-width="1.6"/>
+  <rect width="540" height="270" rx="14" fill="url(#glow3)"/>
+
+  <!-- Icon Badge -->
+  <g transform="translate(30, 26)">
+    <rect width="44" height="44" rx="10" fill="#201430" stroke="#A855F7" stroke-width="1.2"/>
+    <text x="22" y="29" font-size="22" text-anchor="middle">🏢</text>
+  </g>
+
+  <!-- Card Category Tag -->
+  <rect x="86" y="28" width="155" height="22" rx="11" fill="#221236" stroke="#A855F7" stroke-width="0.8"/>
+  <circle cx="98" cy="39" r="3.5" fill="#A855F7"/>
+  <text x="108" y="43" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" font-weight="700" fill="#C084FC" letter-spacing="1.2">ENTERPRISE CUSTODY</text>
+
+  <!-- Card Title & Subtitle -->
+  <text x="86" y="66" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="19" font-weight="800" fill="#FCEFD2">Corporate Telecom &amp; Custody</text>
+  <text x="32" y="100" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12.5" fill="#E5C78A" font-weight="500">Track SIM lines, multi-subsidiary yards, and employee handovers.</text>
+
+  <!-- Bullets -->
+  <g transform="translate(32, 126)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12.5">
+    <text y="0" fill="#A855F7" font-weight="700">✦ <tspan fill="#E2E8F0" font-weight="600">Cellular Line Inventory:</tspan> <tspan fill="#94A3B8">Etisalat &amp; carrier SIMs paired to hardware.</tspan></text>
+    <text y="28" fill="#A855F7" font-weight="700">✦ <tspan fill="#E2E8F0" font-weight="600">Custody Sign-Off Receipts:</tspan> <tspan fill="#94A3B8">Formal issuance, transfer, &amp; exit clearance.</tspan></text>
+    <text y="56" fill="#A855F7" font-weight="700">✦ <tspan fill="#E2E8F0" font-weight="600">Yard &amp; Counter Precision:</tspan> <tspan fill="#94A3B8">Track down to exact building desks &amp; counters.</tspan></text>
+  </g>
+
+  <!-- Footer Tag -->
+  <line x1="32" y1="222" x2="508" y2="222" stroke="#A855F7" stroke-opacity="0.25" stroke-width="1"/>
+  <text x="32" y="246" font-family="monospace" font-size="11" font-weight="600" fill="#C084FC">★ COMPLETE AUDIT CHAIN</text>
+  <text x="508" y="246" font-family="monospace" font-size="11" font-weight="600" fill="#FCEFD2" text-anchor="end">HR &amp; PAYROLL READY</text>
+</svg>

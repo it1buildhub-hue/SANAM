@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 270" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cardBg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F1420"/>
+      <stop offset="50%" stop-color="#090C13"/>
+      <stop offset="100%" stop-color="#05070B"/>
+    </linearGradient>
+    <linearGradient id="borderGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#C4A477" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#05070B" stop-opacity="0.3"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="15%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0B0E17" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="540" height="270" rx="14" fill="url(#cardBg1)" stroke="url(#borderGrad1)" stroke-width="1.6"/>
+  <rect width="540" height="270" rx="14" fill="url(#glow1)"/>
+
+  <!-- Icon Badge -->
+  <g transform="translate(30, 26)">
+    <rect width="44" height="44" rx="10" fill="#13221C" stroke="#10B981" stroke-width="1.2"/>
+    <text x="22" y="29" font-size="22" text-anchor="middle">📱</text>
+  </g>
+
+  <!-- Card Category Tag -->
+  <rect x="86" y="28" width="155" height="22" rx="11" fill="#0E211A" stroke="#10B981" stroke-width="0.8"/>
+  <circle cx="98" cy="39" r="3.5" fill="#10B981"/>
+  <text x="108" y="43" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" font-weight="700" fill="#10B981" letter-spacing="1.2">ZERO-APP AUDITING</text>
+
+  <!-- Card Title & Subtitle -->
+  <text x="86" y="66" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="19" font-weight="800" fill="#FCEFD2">Mobile QR Field Scanner</text>
+  <text x="32" y="100" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12.5" fill="#C4A477" font-weight="500">Scan any physical asset from any phone browser in milliseconds.</text>
+
+  <!-- Bullets -->
+  <g transform="translate(32, 126)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12.5">
+    <text y="0" fill="#10B981" font-weight="700">✦ <tspan fill="#E2E8F0" font-weight="600">Single-Tap Reconciliation:</tspan> <tspan fill="#94A3B8">Instant match with MariaDB registry.</tspan></text>
+    <text y="28" fill="#10B981" font-weight="700">✦ <tspan fill="#E2E8F0" font-weight="600">Discrepancy Reporting:</tspan> <tspan fill="#94A3B8">Flag missing or relocated hardware on site.</tspan></text>
+    <text y="56" fill="#10B981" font-weight="700">✦ <tspan fill="#E2E8F0" font-weight="600">Dockside Drafting:</tspan> <tspan fill="#94A3B8">Register new arrivals directly at receiving bays.</tspan></text>
+  </g>
+
+  <!-- Footer Tag -->
+  <line x1="32" y1="222" x2="508" y2="222" stroke="#C4A477" stroke-opacity="0.2" stroke-width="1"/>
+  <text x="32" y="246" font-family="monospace" font-size="11" font-weight="600" fill="#10B981">✓ 100% PWA &amp; BROWSER READY</text>
+  <text x="508" y="246" font-family="monospace" font-size="11" font-weight="600" fill="#C4A477" text-anchor="end">NO MDM / APP STORE NEEDED</text>
+</svg>

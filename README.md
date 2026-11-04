@@ -9,7 +9,7 @@
 
 <!-- Animated Luxury Typing Subtitle -->
 <a href="https://github.com/it1buildhub-hue/SANAM">
-  <img src="https://readme-typing-svg.demolab.com?font=Cinzel&weight=700&size=20&duration=3200&pause=1200&color=F3E5AB&center=true&vCenter=true&width=780&lines=NEXT-GENERATION+ENTERPRISE+IT+ASSET+MANAGEMENT;PHYSICAL+QR+AUDITING+%26+ZERO-APP+FIELD+SCAN;PERMANENT+%26+IMMUTABLE+ASSET+IDENTIFICATION;100%25+RECONCILIATION+%26+CUSTODY+CLEARANCE+TRAIL" alt="SANAM Typing Animation" />
+  <img src="https://readme-typing-svg.demolab.com?font=Cinzel&weight=700&size=21&duration=3200&pause=1200&color=F3E5AB&center=true&vCenter=true&width=820&lines=NEXT-GENERATION+ENTERPRISE+IT+ASSET+MANAGEMENT;PHYSICAL+QR+AUDITING+%26+ZERO-APP+FIELD+SCAN;PERMANENT+%26+IMMUTABLE+ASSET+IDENTIFICATION;100%25+RECONCILIATION+%26+CUSTODY+CLEARANCE+TRAIL" alt="SANAM Typing Animation" />
 </a>
 
 <br/>
@@ -46,79 +46,43 @@
 
 SANAM eradicates these points of failure through a **luxury-tier design system**, an **immutable sequential ID engine**, a **zero-install mobile QR audit workflow**, and **full employee custody lifecycle verification**.
 
-```
-  ┌──────────────────────────────────────────────────────────────────────────────────┐
-  │                           THE SANAM LIFECYCLE PARADIGM                           │
-  └──────────────────────────────────────────────────────────────────────────────────┘
-    [ Receiving Dock ]  ───►  [ Permanent SNM-000001 ]  ───►  [ QR Code Labeling ]
-                                                                      │
-    [ Exit Sign-Off ]   ◄───  [ Mobile Field Audit ]    ◄─────────────┘
-```
+> [!IMPORTANT]
+> **IMMUTABLE IDENTITY ASSURANCE:** SANAM enforces zero-collision serial checks at the database layer. Every asset receives one permanent `SNM-xxxxxx` identifier that is never purged, reassigned, or duplicated.
+
+> [!TIP]
+> **ZERO-INSTALL FIELD AUDITING:** In-field auditors need no app store downloads or MDM enrollment. Point any smartphone camera at an asset's QR code to launch the real-time reconciliation sheet instantly.
 
 ---
 
 ## 🍱 Core Pillars (Bento Grid)
 
-<table align="center" width="100%" border="0" cellSpacing="10" cellPadding="0">
-  <tr>
-    <td width="55%" valign="top" style="padding: 20px; background: linear-gradient(145deg, #0e131f, #07090e); border: 1px solid rgba(196,164,119,0.45); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-      <h3 style="color: #D4AF37; margin-top: 0;">📱 Mobile QR Field Audit Engine</h3>
-      <p style="color: #F3E5AB; font-size: 14px; line-height: 1.6;">
-        Transform any smartphone into an enterprise barcode auditor without installing third-party apps or MDM profiles. Auditors point their camera, inspect registered custody, and verify physical state in milliseconds.
-      </p>
-      <ul style="color: #E5C78A; font-size: 13.5px; line-height: 1.8;">
-        <li><b>Single-Tap Verification:</b> Real-time matching against MariaDB registry.</li>
-        <li><b>Instant Discrepancy Flagging:</b> Mark damaged, relocated, or unaccounted devices.</li>
-        <li><b>Dockside Drafting:</b> Register inbound hardware straight from the loading bay.</li>
-      </ul>
-    </td>
-    <td width="45%" valign="top" style="padding: 20px; background: linear-gradient(145deg, #0e131f, #07090e); border: 1px solid rgba(196,164,119,0.45); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-      <h3 style="color: #D4AF37; margin-top: 0;">🔒 Immutable Asset Identity</h3>
-      <p style="color: #F3E5AB; font-size: 14px; line-height: 1.6;">
-        Hardware changes hands, parts get swapped, but identity remains permanent.
-      </p>
-      <ul style="color: #E5C78A; font-size: 13.5px; line-height: 1.8;">
-        <li><b>Sequential IDs:</b> Permanent <code>SNM-000001</code> format; never reused.</li>
-        <li><b>Zero-Tolerance Collision Check:</b> Blocks duplicate serial registrations.</li>
-        <li><b>Tamper-Proof History:</b> Survives company re-allocations and entity transfers.</li>
-      </ul>
-    </td>
-  </tr>
-  <tr>
-    <td width="45%" valign="top" style="padding: 20px; background: linear-gradient(145deg, #0e131f, #07090e); border: 1px solid rgba(196,164,119,0.45); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-      <h3 style="color: #D4AF37; margin-top: 0;">🏢 Multi-Entity &amp; Telecom Tracking</h3>
-      <p style="color: #F3E5AB; font-size: 14px; line-height: 1.6;">
-        Manage enterprise subsidiaries, operating yards, and cellular line allocations together.
-      </p>
-      <ul style="color: #E5C78A; font-size: 13.5px; line-height: 1.8;">
-        <li><b>SIM &amp; Number Management:</b> Etisalat/carrier line assignments tied to hardware.</li>
-        <li><b>Custody Trails:</b> Employee issue forms, transfer receipts, and exit clearances.</li>
-        <li><b>Micro-Location Pinpoint:</b> Track down to specific yard buildings and office counters.</li>
-      </ul>
-    </td>
-    <td width="55%" valign="top" style="padding: 20px; background: linear-gradient(145deg, #0e131f, #07090e); border: 1px solid rgba(196,164,119,0.45); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-      <h3 style="color: #D4AF37; margin-top: 0;">⚡ Frictionless Local Deployment</h3>
-      <p style="color: #F3E5AB; font-size: 14px; line-height: 1.6;">
-        Eliminate weeks of setup complexity. Provision full instances with PowerShell automation.
-      </p>
-      <ul style="color: #E5C78A; font-size: 13.5px; line-height: 1.8;">
-        <li><b>One-Command Provisioning:</b> Automatic schema compilation and table seeding.</li>
-        <li><b>Parallel Sandboxes:</b> Instant demo environments on isolated ports.</li>
-        <li><b>Zero Overhead:</b> Built-in PHP server binding for rapid internal audits.</li>
-      </ul>
-    </td>
-  </tr>
-</table>
+<div align="center">
+
+| <a href="#-visual-walkthrough"><img src="docs/images/card-mobile-audit.svg" width="100%" /></a> | <a href="#-visual-walkthrough"><img src="docs/images/card-immutable-id.svg" width="100%" /></a> |
+|:---:|:---:|
+| <a href="#-visual-walkthrough"><img src="docs/images/card-telecom-custody.svg" width="100%" /></a> | <a href="#-instant-deployment"><img src="docs/images/card-instant-deploy.svg" width="100%" /></a> |
+
+</div>
 
 ---
 
 ## ⚡ Live Auditor Terminal Simulation
 
-Experience how field auditors interact with SANAM's low-latency command engine:
+Experience how field auditors interact with SANAM's low-latency verification engine:
 
 <div align="center">
-  <img src="docs/images/sanam-terminal.svg" alt="Live Auditor Terminal Simulation" width="95%" />
+  <img src="docs/images/sanam-terminal.svg" alt="Live Auditor Terminal Simulation" width="100%" />
 </div>
+
+<br/>
+
+```diff
++ [PASS] SNM-000412: QR Code Decoded & Location Confirmed at Sharjah Yard Office
++ [PASS] Serial 4HG92B3: Zero duplicate collisions detected across enterprise registry
++ [PASS] Custody Verified: Omar Mohammed (Yard Operations Division)
++ [PASS] Audit Log Reconciled: MariaDB Commit #892819 [CAMPAIGN_VERIFIED]
+! [NOTICE] Verification Sign-Off Complete: 100% Asset Compliance Recorded
+```
 
 ---
 
@@ -127,7 +91,7 @@ Experience how field auditors interact with SANAM's low-latency command engine:
 ### 🖥️ Executive Command Center
 Unified oversight over operational readiness, verification campaign progress, and hardware depreciation:
 <div align="center">
-  <img src="docs/images/dashboard.png" alt="SANAM Executive Dashboard" width="95%" style="border-radius: 10px; border: 1px solid rgba(196,164,119,0.3);" />
+  <img src="docs/images/dashboard.png" alt="SANAM Executive Dashboard" width="95%" />
 </div>
 
 <br/>
@@ -136,7 +100,7 @@ Unified oversight over operational readiness, verification campaign progress, an
 
 | 1. Instant QR Identification | 2. Dockside Hardware Registration | 3. Custody &amp; Handover Sign-Off |
 |:---:|:---:|:---:|
-| <img src="docs/images/phone-scan.png" width="280" style="border-radius: 8px; border: 1px solid rgba(196,164,119,0.3);" /> | <img src="docs/images/phone-register.png" width="280" style="border-radius: 8px; border: 1px solid rgba(196,164,119,0.3);" /> | <img src="docs/images/custody.png" width="280" style="border-radius: 8px; border: 1px solid rgba(196,164,119,0.3);" /> |
+| <img src="docs/images/phone-scan.png" width="280" /> | <img src="docs/images/phone-register.png" width="280" /> | <img src="docs/images/custody.png" width="280" /> |
 | *Real-time QR barcode decode & status lookup* | *Direct auditor registration for new arrivals* | *Asset assignment, transfer & return clearance* |
 
 <br/>
@@ -145,7 +109,7 @@ Unified oversight over operational readiness, verification campaign progress, an
 
 | Structured Verification Campaigns | Print-Ready QR Asset Labels |
 |:---:|:---:|
-| <img src="docs/images/campaigns.png" width="460" style="border-radius: 8px; border: 1px solid rgba(196,164,119,0.3);" /> | <img src="docs/images/labels.png" width="460" style="border-radius: 8px; border: 1px solid rgba(196,164,119,0.3);" /> |
+| <img src="docs/images/campaigns.png" width="460" /> | <img src="docs/images/labels.png" width="460" /> |
 | *Multi-area tracking with real-time pass/fail indicators* | *High-contrast QR tags with permanent SNM identifiers* |
 
 ---
